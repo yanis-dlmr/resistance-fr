@@ -25,7 +25,7 @@
 
 ## ✏️ In short
 
-This is the discord bot of the unofficial Black Desert Mobile French community driven Discord Serveur.
+This is the discord bot of the unofficial Black Desert Mobile French community driven Discord Server. This bot only accepts slash commands and apps commands, and is written in Python 3.11.
 
 > <picture>
 >   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/light-theme/note.svg">
@@ -101,7 +101,7 @@ Contact us on Discord :
 - blcklight#0
 - yanisdlmr#0
 
-> [Create a new Issue](https://github.com/yanis-dlmr/resistance-fr/issues/new/)
+> [Create a new Issue](https://github.com/yanis-dlmr/resistance-fr/issues/new/choose)
 
 ## 🧪 Testing
 
@@ -194,6 +194,12 @@ Please read the [changelog](changelog.md) file for the full history !
 
 - [x] MongoDB integration
 - [ ] polls, auto responses and reactions, ...
+- [ ] xp and level up mechanism
+- [ ] creates events for other bots
+- [ ] poll events from MongoDB
+- [ ] guide on how to setup MongoDB database for this bot
 - [ ] ...
 
 **Known Bugs** (latest fix)
+
+- bot timer may be delayed by 7 or 8 seconds
