@@ -18,10 +18,9 @@
 5. [🧪 Testing](#-testing)
 6. [🧑‍🏫 Contributing](#-contributing)
 7. [⚖️ License](#️-license)
-8. [⚖️ License](#️-license-1)
-9. [🖼️ Icons](#️-icons)
-10. [🔄 Changelog](#-changelog)
-11. [🐛 Bugs and TODO](#-bugs-and-todo)
+8. [🖼️ Icons](#️-icons)
+9. [🔄 Changelog](#-changelog)
+10. [🐛 Bugs and TODO](#-bugs-and-todo)
 
 ## ✏️ In short
 
@@ -98,8 +97,6 @@ Happy coding ! 🙂
 
 ## ⚖️ License
 
-## ⚖️ License
-
 This project is licensed under the AGPL-3.0 new or revised license. Please read the [LICENSE](LICENSE.md) file. Additionally :
 
 - Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
@@ -110,7 +107,7 @@ This project is licensed under the AGPL-3.0 new or revised license. Please read 
 
 ```LICENSE
 Useful Moderator - Discord Bot
-Copyright (C) 2023 Thomas BOUYER
+Copyright (C) 2023 Thomas BOUYER & Yanis DELAMARE
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
