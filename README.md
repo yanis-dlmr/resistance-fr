@@ -177,7 +177,14 @@ Tools used :
 Please read the [changelog](changelog.md) file for the full history !
 
 <details>
-    <summary> (click here to expand) </summary>
+  <summary> First Beta Dev Release (click here to expand) </summary>
+
+**v0.1** send help ?
+
+- fork of [Useful Moderator](https://github.com/thomasByr/useful-moderator)
+- added `xp` group of commands
+- added all legal and github related stuff
+- `poll`s are now working 🎉 !
 
 </details>
 
