@@ -25,6 +25,27 @@
 
 ## ✏️ In short
 
+This is the discord bot of the unofficial Black Desert Mobile French community driven Discord Serveur.
+
+> <picture>
+>   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/light-theme/note.svg">
+>   <img alt="Note" src="https://raw.githubusercontent.com/Mqxx/GitHub-Markdown/main/blockquotes/badge/dark-theme/note.svg">
+> </picture><br>
+>
+> Please note that we, the developers, are not affiliated with Pearl Abyss in any way. This bot is a community project, and is not officially supported by Pearl Abyss.
+
+To begin, create an `.env` file in the root directory of the project following the [`.env.example`](.env.example) file (all fields required) :
+
+```env
+BOT_ID = 
+BOT_PREFIX = 
+BOT_TOKEN = 
+BOT_INVITE = 
+
+DB_USER = 
+DB_PASSWD = 
+```
+
 ## 👩‍🏫 Usage & Setup
 
 > <picture>
@@ -75,7 +96,21 @@ You can try to ping the bot in your guild to start 👋 :
 
 ## 🔰 Support
 
+Contact us on Discord :
+
+- blcklight#0
+- yanisdlmr#0
+
+> [Create a new Issue](https://github.com/yanis-dlmr/resistance-fr/issues/new/)
+
 ## 🧪 Testing
+
+Oh god ... please don't. Still, make sure you have `pylint` and `pytest` installed, and run the following :
+
+```bash
+python -m pylint src
+python -m pytest
+```
 
 ## 🧑‍🏫 Contributing
 
@@ -104,10 +139,10 @@ This project is licensed under the AGPL-3.0 new or revised license. Please read 
 
 - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 
-- Neither the name of the Useful Moderator authors nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+- Neither the name of the Resistance FR authors nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
 ```LICENSE
-Useful Moderator - Discord Bot
+Resistance FR - Discord Bot
 Copyright (C) 2023 Thomas BOUYER & Yanis DELAMARE
 
 This program is free software: you can redistribute it and/or modify
