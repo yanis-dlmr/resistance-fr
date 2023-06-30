@@ -1,0 +1,14 @@
+# this is the very basic environment file
+# only python and cudatoolkit are installed
+# everything else is installed via pip
+
+name: dsc              # you should be able to change it
+                       # just pay attention when pasting commands
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11        # developed w/ 3.11
+  - pip                # pip is needed to install the rest
+  - pip:
+    - -r requirements.txt
