@@ -109,6 +109,8 @@ disable=
     # We anticipate #3512 where it will become optional
     fixme,
     cyclic-import,
+    # Optional
+    consider-alternative-union-syntax,
 
 
 [REPORTS]
@@ -144,7 +146,7 @@ logging-modules=logging
 
 # The type of string formatting that logging methods do. `old` means using %
 # formatting, `new` is for `{}` formatting.
-logging-format-style=new
+logging-format-style=old
 
 
 [MISCELLANEOUS]
