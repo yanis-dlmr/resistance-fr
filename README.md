@@ -1,4 +1,4 @@
-# <img src="assets/images/useful_moderator.png" alt="icon" width="4%"/> Resistance FR - Discord Bot
+# <img src="assets/images/logo.png" alt="icon" width="4%"/> Resistance FR - Discord Bot
 
 [![Linux](https://svgshare.com/i/Zhy.svg)](https://docs.microsoft.com/en-us/windows/wsl/tutorials/gui-apps)
 [![Windows](https://svgshare.com/i/ZhY.svg)](https://svgshare.com/i/ZhY.svg)
@@ -9,7 +9,7 @@
 
 [![GitHub version](https://badge.fury.io/gh/yanis-dlmr%2Fresistance-fr.svg)](https://github.com/yanis-dlmr/resistance-fr)
 [![Author](https://img.shields.io/badge/author-@ThomasByr-blue)](https://github.com/ThomasByr)
-[![Author](https://img.shields.io/badge/author-@yanis-dlmr-blue)](https://github.com/yanis-dlmr)
+[![Author](https://img.shields.io/badge/author-@Dlmr-blue)](https://github.com/yanis-dlmr)
 
 1. [✏️ In short](#️-in-short)
 2. [👩‍🏫 Usage \& Setup](#-usage--setup)
