@@ -1,0 +1,13 @@
+# note : all dependencies are locked to a specific version
+#        to ensure reproducibility of the environment ;
+#        exceptions are made for some minor versions
+
+termcolor         == 2.3.*  # for colored output (used in the logger)
+python-dotenv     == 1.0.*  # load environment variables from a .env file (or exported in the shell)
+
+typing_extensions == 4.6.*  # mainly for `override` decorator in python < 3.12
+arrow             == 1.2.*  # for time manipulation
+jellyfish         == 0.11.* # for fuzzy string matching
+
+discord.py        == 2.2.*  # discord API wrapper
+pymongo[srv]      == 4.3.*  # MongoDB driver
