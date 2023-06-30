@@ -2,8 +2,6 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from typing import Optional
-
 from ..db import *
 from ..helper import *
 from ..helper.logger import logger as log
@@ -80,7 +78,7 @@ class Xp(commands.GroupCog):
     await reply_with_embed(interaction, embed)
 
   @app_commands.command(name='leaderboard', description='Get the XP leaderboard of the server 📊')
-  async def leaderboard(self, interaction: discord.Interaction):
+  async def leaderboard(self, interaction: discord.Interaction): # pylint: disable=unused-argument
     ...
 
   @app_commands.command(name='no_life', description='Alias to top 3 of `leaderboard` 📊')
@@ -101,7 +99,7 @@ class Xp(commands.GroupCog):
           f'{TROPHY_EMOJIS[i]} `{user.display_name}` ({user.mention}) {xp} XP ({self.__client.xp_to_lvl(xp)})',
           inline=False,
         )
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
       embed = build_error_embed(
         title='Oopsie, something went wrong !',
         description='Please let an admin know about this issue : \n```py\n' + str(e) + '\n```',

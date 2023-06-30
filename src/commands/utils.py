@@ -1,8 +1,8 @@
+from typing import Optional
+
 import discord
 from discord import app_commands
 from discord.ext import commands
-
-from typing import Optional
 
 from ..helper import *
 from ..helper.logger import logger as log
@@ -40,7 +40,7 @@ class Utils(commands.GroupCog):
 
   @app_commands.command(name='ping', description='Test my ping to Discord\'s endpoint 🏓')
   async def ping(self, interaction: discord.Interaction):
-    embed = build_response_embed(title=f'Pong! `...ms` 🏓',)
+    embed = build_response_embed(title='Pong! `...ms` 🏓',)
     await reply_with_embed(interaction, embed)
     ping_ = f'{round(self.__client.latency * 1000)}ms'
     embed.title = f'Pong! `{ping_}` 🏓'
@@ -69,7 +69,7 @@ class Utils(commands.GroupCog):
 
   @app_commands.command(name='uptime', description='Get the bot\'s uptime ⏱️')
   async def uptime(self, interaction: discord.Interaction):
-    embed = build_response_embed(title=f'Uptime: `.:..:..` ⏱️',)
+    embed = build_response_embed(title='Uptime: `.:..:..` ⏱️',)
     await reply_with_embed(interaction, embed)
     # I swear there is somewhere a `uptime` property in the client
     uptime_: str = self.__client.uptime

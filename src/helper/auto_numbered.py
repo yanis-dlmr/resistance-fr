@@ -24,7 +24,7 @@ class AutoNumberedEnum(Enum):
   ```
   """
 
-  def __new__(cls, *args) -> 'AutoNumberedEnum':
+  def __new__(cls, *args) -> 'AutoNumberedEnum': # pylint: disable=unused-argument
     """
     Creates a new enum member.
 

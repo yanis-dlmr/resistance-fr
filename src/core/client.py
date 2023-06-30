@@ -1,22 +1,17 @@
-import os
 import signal
 import sys
-
-import discord
-from discord.ext.commands import errors
-from discord.ext.commands.context import Context
-import jellyfish
-
-from typing import Any, Callable
-from typing_extensions import override
-from discord.ext import commands
-from discord.message import Message
-from tokenize import tokenize
-from io import StringIO
 
 import datetime
 import math
 from threading import Timer
+
+from collections.abc import Callable
+from typing import Any
+from typing_extensions import override
+
+import discord
+from discord.ext import commands
+from discord.message import Message
 
 from ..helper import *
 from ..helper import logger
@@ -118,7 +113,7 @@ class UsefulClient(commands.AutoShardedBot):
 
   @property
   def uptime(self) -> str:
-    return str(datetime.datetime.now() - self.__start_time).split('.')[0]
+    return str(datetime.datetime.now() - self.__start_time).split('.', maxsplit=1)[0]
 
   @property
   def start_time(self) -> float:
@@ -126,8 +121,8 @@ class UsefulClient(commands.AutoShardedBot):
 
   @override
   async def on_ready(self):
-    log.info(f'Logged in as {self.user} (ID: {self.user.id})')
-    log.info(f'Connected to {len(self.guilds)} guilds')
+    log.info('Logged in as %s (ID: %d)', self.user, self.user.id)
+    log.info('Connected to %d guilds', len(self.guilds))
     await self.setup()
 
     log.info('Messing around ...')
@@ -231,13 +226,13 @@ class UsefulClient(commands.AutoShardedBot):
            UsefulClient.xp_from_additionnal_attatchements(len(message.attachments))
 
   @override
-  async def on_message(self, message: Message):
+  async def on_message(self, message: Message): # pylint: disable=arguments-differ
     if message.author.bot:
       await self.process_cmd(message)
     await self.process_msg(message)
 
-  async def process_msg(self, message: Message):
+  async def process_msg(self, message: Message): # pylint: disable=unused-argument
     ...
 
-  async def process_cmd(self, message: Message):
+  async def process_cmd(self, message: Message): # pylint: disable=unused-argument
     ...

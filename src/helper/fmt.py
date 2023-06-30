@@ -5,7 +5,7 @@ from termcolor import colored
 __all__ = ['UsefulFormatter']
 
 
-def formatter(c: str, attrs: list[str] = []) -> str:
+def formatter(c: str, attrs: list[str] = None) -> str:
   return f"{colored('%(asctime)s', 'grey', attrs=['bold'])} {colored('%(levelname)8s', c, attrs=attrs)} {colored('%(name)s', 'magenta')} (%(filename)s:%(lineno)d) %(message)s"
 
 
@@ -23,5 +23,5 @@ class UsefulFormatter(logging.Formatter):
   @override
   def format(self, record: logging.LogRecord) -> str:
     log_fmt = self.FORMATS.get(record.levelno)
-    formatter = logging.Formatter(log_fmt, self.dt_fmt, style='%')
-    return formatter.format(record)
+    fmt = logging.Formatter(log_fmt, self.dt_fmt, style='%')
+    return fmt.format(record)

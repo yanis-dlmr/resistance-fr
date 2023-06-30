@@ -1,10 +1,9 @@
 import os
 
-from typing import Generator
+from collections.abc import Generator
 from dataclasses import dataclass
 
 from pymongo import MongoClient
-from pymongo.database import Database
 from pymongo.collection import Collection
 
 from ..helper.logger import logger as log
@@ -60,8 +59,8 @@ class UsefulDatabase:
         self.__client = MongoClient(CONNECTION_STRING)
         log.debug('Connected to database')
         r = True
-      except Exception as e:
-        log.error(f'Could not connect to database: {e}')
+      except Exception as e: # pylint: disable=broad-except
+        log.error('Could not connect to database: %s', e)
     else:
       log.warning('No database credentials provided, skipping connection')
     return r
@@ -86,8 +85,8 @@ class UsefulDatabase:
         self.tests_collection.delete_one({'test': 'test'})
         self.disconnect()
       log.info('Test successful')
-    except Exception as e:
-      log.error(f'Test failed: {e}')
+    except Exception as e: # pylint: disable=broad-except
+      log.error('Test failed: %s', e)
 
   def __enter__(self) -> 'UsefulDatabase':
     self.connect()
@@ -118,8 +117,7 @@ class UsefulDatabase:
 
   def add_xp_to_user(self, user_id: int, amount: int) -> int:
     """Updates user XP and return XP before update or -1 if the user does not exist"""
-    entry = self.__get_user_entry(user_id)
-    if entry is not None:
+    if (entry := self.__get_user_entry(user_id)) is not None:
       self.users_collection.update_one(
         {'id_user': user_id},
         {'$inc': {

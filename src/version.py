@@ -54,4 +54,4 @@ __version__ = '.'.join([
   _PATCH_VERSION,
 ])
 if _VERSION_SUFFIX:
-  __version__ = '{}-{}'.format(__version__, _VERSION_SUFFIX)
+  __version__ = f'{__version__}-{_VERSION_SUFFIX}'

@@ -1,10 +1,9 @@
 import os
+import logging
 
 from dotenv import load_dotenv
 
-import logging
-
-from .formatter import *
+from .fmt import *
 
 __all__ = ['logger', 'log_lvl', 'console_handler', 'default_formatter']
 
