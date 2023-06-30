@@ -25,7 +25,6 @@ var/
 *.egg
 
 # Testing
-**/[Tt]est*
 *[Tt]est.ipynb
 
 # PyInstaller
