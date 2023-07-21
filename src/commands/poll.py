@@ -51,7 +51,7 @@ class Pool_View(CustomView):
       view=self,
     )
 
-  @discord.ui.button(emoji=SUCCESS_EMOJI, label='End the poll', style=discord.ButtonStyle.danger)
+  @discord.ui.button(emoji=SUCCESS_EMOJI, label='End the poll', style=discord.ButtonStyle.primary)
   async def end_poll(self, interaction: discord.Interaction, _: discord.ui.Button):
     if not interaction.user.resolved_permissions.manage_guild:
       embed = build_error_embed(
@@ -75,7 +75,7 @@ class Pool_View(CustomView):
       view=self,
     )
 
-  @discord.ui.button(emoji=GEAR_EMOJI, label='Edit', style=discord.ButtonStyle.blurple)
+  @discord.ui.button(emoji=GEAR_EMOJI, style=discord.ButtonStyle.blurple)
   async def edit_poll(self, interaction: discord.Interaction, _: discord.ui.Button):
     if not interaction.user.resolved_permissions.manage_guild:
       embed = build_error_embed(
@@ -299,7 +299,8 @@ class Poll(commands.GroupCog):
     choice9: Optional[str] = None,
     allow_multiple: bool = False,
     auto_close_in: Optional[app_commands.Choice[int]] = None,
-  ): # pylint: disable=too-many-arguments
+  ):                                                          # pylint: disable=too-many-arguments
+
     choices = [choice0, choice1, choice2, choice3, choice4, choice5, choice6, choice7, choice8, choice9]
     choices = [choice for choice in choices if choice is not None]
     if len(choices) < 2:
@@ -316,12 +317,6 @@ class Poll(commands.GroupCog):
       )
       await reply_with_status_embed(interaction, embed, failed=True)
       return
-
-    # create the poll which will consist of an embed
-    # with the question as title and the choices as fields
-    # and a live view of the results
-    # the footer will contain the author of the poll
-    # and users will be able to vote by clicking on buttons
 
     auto_close_in = None if auto_close_in is None else auto_close_in.value
     # create the embed

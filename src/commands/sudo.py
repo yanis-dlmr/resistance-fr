@@ -62,7 +62,9 @@ class Sudo(commands.GroupCog):
     failed = False
     try:
       await send_channel_message(interaction.channel, message)
+
     except Exception as e: # pylint: disable=broad-except
+
       failed = True
       embed = build_error_embed(
         title=f'{FAIL_EMOJI} error while sending message !',
@@ -83,6 +85,7 @@ class Sudo(commands.GroupCog):
           break
 
     except Exception as e: # pylint: disable=broad-except
+
       failed = True
       embed = build_error_embed(
         title=f'{FAIL_EMOJI} error while editing message !',
@@ -128,7 +131,9 @@ class Sudo(commands.GroupCog):
     try:
       delta = datetime.timedelta(seconds=duration.value)
       await user.timeout(delta, reason=reason)
+
     except Exception as e: # pylint: disable=broad-except
+
       failed = True
       embed = build_error_embed(
         title=f'{FAIL_EMOJI} error while timing out user `{user}` !',
@@ -144,7 +149,9 @@ class Sudo(commands.GroupCog):
     failed = False
     try:
       await user.timeout(None)
+
     except Exception as e: # pylint: disable=broad-except
+
       failed = True
       embed = build_error_embed(
         title=f'{FAIL_EMOJI} error while untiming out user `{user}` !',
@@ -162,7 +169,9 @@ class Sudo(commands.GroupCog):
     failed = False
     try:
       await user.kick(reason=reason)
+
     except Exception as e: # pylint: disable=broad-except
+
       failed = True
       embed = build_error_embed(
         title=f'{FAIL_EMOJI} error while kicking user `{user}` !',
@@ -185,7 +194,9 @@ class Sudo(commands.GroupCog):
     failed = False
     try:
       await user.ban(reason=reason, delete_message_days=7 if del_msgs else 0)
+
     except Exception as e: # pylint: disable=broad-except
+
       failed = True
       embed = build_error_embed(
         title=f'{FAIL_EMOJI} error while banning user `{user}` !',
@@ -203,7 +214,9 @@ class Sudo(commands.GroupCog):
     failed = False
     try:
       await interaction.guild.unban(user, reason=reason)
+
     except Exception as e: # pylint: disable=broad-except
+
       failed = True
       embed = build_error_embed(
         title=f'{FAIL_EMOJI} error while unbanning user `{user}` !',

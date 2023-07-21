@@ -46,17 +46,15 @@ class BotLog(commands.GroupCog):
   @app_commands.command(name='dump', description='Dump the bot log 📝')
   async def dump(self, interaction: discord.Interaction):
     file = discord.File('bot.log')
-    failed = False
     embed = build_success_embed(title=f'{SUCCESS_EMOJI} bot log dumped !',)
     try:
       await send_channel_file(interaction.channel, file)
-    except Exception as e: # pylint: disable=broad-except
-      failed = True
+    except Exception as e:                           # pylint: disable=broad-except
       embed = build_error_embed(
         title=f'{FAIL_EMOJI} bot log dump failed !',
         description=f'```{e}```',
       )
-    await reply_with_status_embed(interaction, embed, failed)
+    await reply_with_embed(interaction, embed)
 
   @app_commands.command(name='filter', description='Filter the bot log based on some expressions 🔎')
   @app_commands.describe(
@@ -81,7 +79,6 @@ class BotLog(commands.GroupCog):
       title=f'{SUCCESS_EMOJI} bot log filtered !',
       description=f'```{mode.name} {expressions}```',
     )
-    failed = False
 
     try:
       # there are so many things that can go wrong here...
@@ -94,8 +91,8 @@ class BotLog(commands.GroupCog):
 
       chunks: list[str] = []
       for line in lines:
-        # timestamp is : '%Y-%m-%d %H:%M:%S'
-        if re.match(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', line):
+        # timestamp is : '%Y-%m-%d %H:%M:%S' and is located anywhere in the line
+        if re.match('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', line):
           chunks.append(line)
         elif len(chunks) == 0:
           chunks.append(line)
@@ -112,12 +109,12 @@ class BotLog(commands.GroupCog):
       os.remove('tmp.bot.log')
 
     except Exception as e: # pylint: disable=broad-except
-      failed = True
+
       embed = build_error_embed(
         title=f'{FAIL_EMOJI} bot log filter failed !',
         description=f'```{e}```',
       )
-    await reply_with_status_embed(interaction, embed, failed)
+    await reply_with_embed(interaction, embed)
 
   @app_commands.command(name='last', description='Get the last lines of the bot log ♻️')
   @app_commands.describe(
@@ -129,7 +126,6 @@ class BotLog(commands.GroupCog):
       lines = app_commands.Choice(name='10', value=10)
 
     # for this request we will build the success embed after the request
-    failed = False
 
     try:
       # there are so many things that can go wrong here...
@@ -145,7 +141,7 @@ class BotLog(commands.GroupCog):
       os.remove('tmp.bot.log')
 
     except Exception as e: # pylint: disable=broad-except
-      failed = True
+
       embed = build_error_embed(
         title=f'{FAIL_EMOJI} bot log filter failed !',
         description=f'```{e}```',
@@ -155,4 +151,4 @@ class BotLog(commands.GroupCog):
         title=f'{SUCCESS_EMOJI} bot log filtered !',
         description=f'```got {(n:=len(new_file))}/{lines.value} line{"s" if n > 1 else ""}```',
       )
-    await reply_with_status_embed(interaction, embed, failed)
+    await reply_with_embed(interaction, embed)

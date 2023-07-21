@@ -21,4 +21,10 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(log_lvl)
 console_handler.setFormatter(default_formatter := UsefulFormatter())
 
+# create file handler which logs even debug messages
+file_handler = logging.FileHandler('bot.log', mode='w', encoding='utf-8')
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(UsefulFormatter(colored_output=False))
+
 logger.addHandler(console_handler)
+logger.addHandler(file_handler)

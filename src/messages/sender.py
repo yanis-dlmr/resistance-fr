@@ -15,6 +15,7 @@ __all__ = [
   'send_channel_message',
   'send_channel_file',
   'send_poll_followup_embed',
+  'send_xp_embed',
 ]
 
 
@@ -119,7 +120,7 @@ def reply_with_status_embed(
   """
   s: int = 5
   if not failed:
-    r = f'\nauto delete {format_timestamp(timestamp=Arrow.utcnow().shift(seconds=s+8))}'
+    r = f'\nauto delete {format_timestamp(timestamp=Arrow.utcnow().shift(seconds=s))}'
     try:
       embed.description += r
     except TypeError:
@@ -158,7 +159,7 @@ def send_status_embed(
   """
   s: int = 5
   if not failed:
-    r = f'\nauto delete {format_timestamp(timestamp=Arrow.utcnow().shift(seconds=s))}'
+    r = f'\nauto delete {format_timestamp(timestamp=Arrow.utcnow().shift(seconds=s+5))}'
     try:
       embed.description += r
     except TypeError:
@@ -222,11 +223,42 @@ def send_poll_followup_embed(
   return interaction.followup.send(embed=embed, ephemeral=True)
 
 
+def send_xp_embed(
+  interaction: discord.Interaction,
+  embed: discord.Embed,
+  view: discord.ui.View,
+) -> Coroutine[Any, Any, None]:
+  """
+  send a poll embed
+
+  ## Parameters
+  ```py
+  >>> interaction : discord.Interaction
+  ```
+  original interaction
+  ```py
+  >>> embed : discord.Embed
+  ```
+  embed to send
+  ```py
+  >>> view : discord.ui.View
+  ```
+  view to send
+
+  ## Returns
+  ```py
+  Coroutine[Any, Any, None] : the coroutine that sends the embed
+  ```
+  """
+  return interaction.response.send_message(embed=embed, view=view)
+
+
 def send_channel_message(channel: discord.TextChannel, message: str) -> Coroutine[Any, Any, None]:
   return channel.send(message)
 
 
-def edit_channel_message(channel: discord.TextChannel, message: str, msg_id: int) -> Coroutine[Any, Any, None]:
+def edit_channel_message(channel: discord.TextChannel, message: str,
+                         msg_id: int) -> Coroutine[Any, Any, None]:
   return channel.edit_message(message, msg_id)
 
 
