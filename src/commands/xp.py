@@ -51,7 +51,7 @@ class LeaderBoardView(CustomView):
     return page % self.n_pages
 
   def __setup(self) -> None:
-    self.__tmp_records = [e for e in self.__db.users()]
+    self.__tmp_records = list(self.__db.users())
     self.__tmp_records.sort(key=lambda e: e.xp, reverse=True)
 
     building_page = 0
@@ -151,7 +151,7 @@ class Xp(commands.GroupCog):
     await reply_with_embed(interaction, embed)
 
   @app_commands.command(name='leaderboard', description='Get the XP leaderboard of the server 📊')
-  async def leaderboard(self, interaction: discord.Interaction): # pylint: disable=unused-argument
+  async def leaderboard(self, interaction: discord.Interaction):
     embed: discord.Embed = None
     view: LeaderBoardView = None
     followup = True

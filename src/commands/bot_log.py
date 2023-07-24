@@ -92,7 +92,7 @@ class BotLog(commands.GroupCog):
       chunks: list[str] = []
       for line in lines:
         # timestamp is : '%Y-%m-%d %H:%M:%S' and is located anywhere in the line
-        if re.match('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', line):
+        if re.match(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', line):
           chunks.append(line)
         elif len(chunks) == 0:
           chunks.append(line)
