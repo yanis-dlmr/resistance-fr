@@ -7,7 +7,7 @@
 [![GitHub latest commit](https://badgen.net/github/last-commit/yanis-dlmr/resistance-fr)](https://gitHub.com/yanis-dlmr/resistance-fr/commit/)
 [![Maintenance](https://img.shields.io/badge/maintained%3F-yes-green.svg)](https://GitHub.com/yanis-dlmr/resistance-fr/graphs/commit-activity)
 
-[![Python Package Conda/Hatch](https://github.com/yanis-dlmr/resistance-fr/actions/workflows/python-package-conda.yml/badge.svg)](https://github.com/yanis-dlmr/resistance-fr/actions/workflows/python-package-conda.yml)
+[![Python Package Conda&Hatch](https://github.com/yanis-dlmr/resistance-fr/actions/workflows/python-package-conda.yml/badge.svg)](https://github.com/yanis-dlmr/resistance-fr/actions/workflows/python-package-conda.yml)
 [![GitHub version](https://badge.fury.io/gh/yanis-dlmr%2Fresistance-fr.svg)](https://github.com/yanis-dlmr/resistance-fr)
 [![Author](https://img.shields.io/badge/author-@ThomasByr-blue)](https://github.com/ThomasByr)
 [![Author](https://img.shields.io/badge/author-@Dlmr-blue)](https://github.com/yanis-dlmr)
