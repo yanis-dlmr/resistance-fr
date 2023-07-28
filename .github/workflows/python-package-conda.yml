@@ -1,4 +1,4 @@
-name: Python Package Conda/Hatch
+name: Python Package Conda&Hatch
 
 on:
   push:
