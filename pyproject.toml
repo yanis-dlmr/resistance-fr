@@ -1,0 +1,53 @@
+[build-system]
+requires      = ["hatchling", "hatch-requirements-txt"]
+build-backend = "hatchling.build"
+
+[project]
+name = "resistance-fr"
+authors = [
+  { name = "ThomasByr", email = "tbouyer2000@gmail.com" },
+  { name = "YanisDlmr", email = "" },
+]
+description = "Resistance FR - Discord Bot"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+  "Operating System :: OS Independent",
+]
+dynamic = ["dependencies", "optional-dependencies", "version"]
+
+[tool.hatch.version]
+path = "src/version.py"
+
+[tool.hatch.metadata.hooks.requirements_txt]
+files = ["requirements.txt"]
+
+[tool.hatch.metadata.hooks.requirements_txt.optional-dependencies]
+dev = ["requirements-dev.txt"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [".github", "docs"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[project.urls]
+Documentation = "https://github.com/yanis-dlmr/resistance-fr/wiki"
+Issues        = "https://github.com/yanis-dlmr/resistance-fr/issues"
+Source        = "https://github.com/yanis-dlmr/resistance-fr"
+
+[tool.hatch.envs.dev]
+path     = ".hatch"
+features = ["dev"]
+
+[tool.hatch.envs.dev.scripts]
+test  = "python -m pytest"
+lint  = "python -m pylint src"
+style = "python -m yapf -dr src"
+fmt   = "python -m yapf -ir src"
+
+check = ["test", "lint", "style"]
