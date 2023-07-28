@@ -117,10 +117,8 @@ class BotLog(commands.GroupCog):
     await reply_with_embed(interaction, embed)
 
   @app_commands.command(name='last', description='Get the last lines of the bot log ♻️')
-  @app_commands.describe(
-    lines='Number of lines to get (defaults to 10)',)
-  @app_commands.choices(
-    lines=[app_commands.Choice(name=str(i), value=i) for i in (1, 10, 20, 50, 100)],)
+  @app_commands.describe(lines='Number of lines to get (defaults to 10)',)
+  @app_commands.choices(lines=[app_commands.Choice(name=str(i), value=i) for i in (1, 10, 20, 50, 100)],)
   async def last(self, interaction: discord.Integration, lines: Optional[app_commands.Choice[int]] = None):
     if lines is None:
       lines = app_commands.Choice(name='10', value=10)

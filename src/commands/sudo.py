@@ -142,8 +142,7 @@ class Sudo(commands.GroupCog):
     await reply_with_status_embed(interaction, embed, failed)
 
   @app_commands.command(name='untimeout', description='Untimeout a user 🔨')
-  @app_commands.describe(
-    user='User to untimeout',)
+  @app_commands.describe(user='User to untimeout',)
   async def untimeout(self, interaction: discord.Interaction, user: discord.Member):
     embed = build_success_embed(title=f'{SUCCESS_EMOJI} user `{user}` has been untimed out !',)
     failed = False
