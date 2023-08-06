@@ -123,6 +123,10 @@ class UsefulClient(commands.AutoShardedBot):
   async def on_ready(self):
     log.info('Logged in as %s (ID: %d)', self.user, self.user.id)
     log.info('Connected to %d guilds', len(self.guilds))
+
+
+  @override
+  async def setup_hook(self):
     await self.setup()
 
     log.info('Messing around ...')
@@ -131,7 +135,7 @@ class UsefulClient(commands.AutoShardedBot):
       status=discord.Status.online,
       activity=discord.Activity(
         type=discord.ActivityType.watching,
-        name=f'v {__version__}',
+        name=f'/help | v {__version__}',
       ),
     )
     self.__db.test()
