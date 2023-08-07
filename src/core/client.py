@@ -124,7 +124,6 @@ class UsefulClient(commands.AutoShardedBot):
     log.info('Logged in as %s (ID: %d)', self.user, self.user.id)
     log.info('Connected to %d guilds', len(self.guilds))
 
-
   @override
   async def setup_hook(self):
     await self.setup()
