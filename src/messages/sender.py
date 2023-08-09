@@ -157,7 +157,7 @@ def send_status_embed(
   Coroutine[Any, Any, None] : the coroutine that sends the embed
   ```
   """
-  s: int = 5
+  s: int = 2
   if not failed:
     r = f'\nauto delete {format_timestamp(timestamp=Arrow.utcnow().shift(seconds=s+5))}'
     try:

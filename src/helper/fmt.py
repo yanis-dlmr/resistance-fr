@@ -9,7 +9,7 @@ __all__ = ['UsefulFormatter']
 def formatter(c: str, attrs: list[str] = None, colored_output: bool = True) -> str:
   if colored_output:
     return f"{colored('%(asctime)s', 'grey', attrs=['bold'])} {colored('%(levelname)8s', c, attrs=attrs)} {colored('%(name)s', 'magenta')} (%(filename)s:%(lineno)d) %(message)s"
-  return "%(asctime)s %(levelname)8s %(name)s (%(filename)s:%(lineno)d) %(message)s"
+  return '%(asctime)s %(levelname)8s %(name)s (%(filename)s:%(lineno)d) %(message)s'
 
 
 class UsefulFormatter(logging.Formatter):
