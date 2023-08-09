@@ -12,7 +12,9 @@ __all__ = ['UsefulDatabase', 'ExportUserEntry']
 
 DB_USER = os.getenv('DB_USER', '')
 DB_PASSWD = os.getenv('DB_PASSWD', '')
-CONNECTION_STRING = f'mongodb+srv://{DB_USER}:{DB_PASSWD}@cluster0.3sxzq.mongodb.net/?retryWrites=true&w=majority'
+DB_URL = os.getenv('DB_URL', '')
+DB_PORT = os.getenv('DB_PORT', None)
+CONNECTION_STRING = f'mongodb+srv://{DB_USER}:{DB_PASSWD}@{DB_URL}/?retryWrites=true&w=majority'
 
 
 @dataclass
@@ -56,7 +58,7 @@ class UsefulDatabase:
     r = False
     if DB_USER != '' and DB_PASSWD != '':
       try:
-        self.__client = MongoClient(CONNECTION_STRING)
+        self.__client = MongoClient(CONNECTION_STRING, port=int(DB_PORT) if DB_PORT else None)
         log.debug('Connected to database')
         r = True
       except Exception as e: # pylint: disable=broad-except
@@ -81,8 +83,10 @@ class UsefulDatabase:
     log.info('Testing database connection...')
     try:
       if self.connect():
-        self.tests_collection.insert_one({'test': 'test'})
-        self.tests_collection.delete_one({'test': 'test'})
+        r = self.tests_collection.insert_one({'test': 'test'})
+        assert r.acknowledged and r.inserted_id is not None
+        r = self.tests_collection.delete_one({'test': 'test'})
+        assert r.acknowledged and r.deleted_count == 1
         self.disconnect()
       log.info('Test successful')
     except Exception as e: # pylint: disable=broad-except
