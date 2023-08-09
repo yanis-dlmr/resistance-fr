@@ -1,6 +1,7 @@
 import signal
 import sys
 
+import logging
 import datetime
 import math
 from threading import Timer
@@ -121,6 +122,14 @@ class UsefulClient(commands.AutoShardedBot):
 
   @override
   async def on_ready(self):
+    await self.tree.sync()
+    await self.change_presence(
+      status=discord.Status.online,
+      activity=discord.Activity(
+        type=discord.ActivityType.watching,
+        name=f'/help (v{__version__})',
+      ),
+    )
     log.info('Logged in as %s (ID: %d)', self.user, self.user.id)
     log.info('Connected to %d guilds', len(self.guilds))
 
@@ -129,21 +138,14 @@ class UsefulClient(commands.AutoShardedBot):
     await self.setup()
 
     log.info('Messing around ...')
-    await self.tree.sync()
-    await self.change_presence(
-      status=discord.Status.online,
-      activity=discord.Activity(
-        type=discord.ActivityType.watching,
-        name=f'/help | v {__version__}',
-      ),
-    )
+
     self.__db.test()
     self.__db.connect()
 
     signal.signal(signal.SIGINT, self.on_end_handler)
     signal.signal(signal.SIGTERM, self.on_end_handler)
 
-    log.info('Ready 🥳 !')
+    log.info('Ready to connect 🥳 !')
 
   @override
   def run(self, token: str) -> None:
@@ -161,8 +163,20 @@ class UsefulClient(commands.AutoShardedBot):
       reconnect=True,
       log_handler=logger.console_handler,
       log_formatter=logger.default_formatter,
-      log_level=logger.log_lvl,
+      log_level=logging.INFO, # discord.py is too noisy
     )
+
+  @override
+  async def on_error(self, event_method: str, *args: Any, **kwargs: Any): # pylint: disable=unused-argument
+    log.error('Unhandled exception in %s', event_method, exc_info=True)
+
+  @override
+  async def on_command_error(self, ctx: commands.Context, exception: Exception, /):
+    log.error('Unhandled exception in %s\n%s', ctx.command, exception, exc_info=True)
+
+  @commands.after_invoke
+  async def after_invoke(self, ctx: commands.Context): # !fixme
+    log.debug('Command %s invoked by %s in %s', ctx.command, ctx.author, ctx.channel)
 
   def on_end_handler(self, sig: int, frame) -> None: # pylint: disable=unused-argument
     """
