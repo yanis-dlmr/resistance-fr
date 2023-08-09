@@ -163,7 +163,7 @@ class UsefulClient(commands.AutoShardedBot):
       reconnect=True,
       log_handler=logger.console_handler,
       log_formatter=logger.default_formatter,
-      log_level=logging.INFO, # discord.py is too noisy
+      log_level=logging.INFO,                 # discord.py is too noisy
     )
 
   @override
@@ -174,8 +174,8 @@ class UsefulClient(commands.AutoShardedBot):
   async def on_command_error(self, ctx: commands.Context, exception: Exception, /):
     log.error('Unhandled exception in %s\n%s', ctx.command, exception, exc_info=True)
 
-  @commands.after_invoke
-  async def after_invoke(self, ctx: commands.Context): # !fixme
+  @commands.before_invoke
+  def log_before_invoke(self, ctx: commands.Context, /): # !fixme
     log.debug('Command %s invoked by %s in %s', ctx.command, ctx.author, ctx.channel)
 
   def on_end_handler(self, sig: int, frame) -> None: # pylint: disable=unused-argument
