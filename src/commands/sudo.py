@@ -17,7 +17,10 @@ class Sudo(commands.GroupCog):
 
   def __init__(self, client: commands.AutoShardedBot):
     self.__client = client
-    log.info('Sudo cog loaded !')
+
+  @commands.Cog.listener()
+  async def on_ready(self):
+    log.info('Sudo cog ready !')
 
   @app_commands.command(name='help', description='Get help about a command')
   async def help(self, interaction: discord.Interaction):

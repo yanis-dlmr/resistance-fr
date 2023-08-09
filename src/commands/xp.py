@@ -92,6 +92,9 @@ class Xp(commands.GroupCog):
   def __init__(self, client: commands.AutoShardedBot, db: UsefulDatabase):
     self.__client = client
     self.__db = db
+
+  @commands.Cog.listener()
+  async def on_ready(self):
     log.info('Xp cog loaded !')
 
   @app_commands.command(name='help', description='Get help about a command')

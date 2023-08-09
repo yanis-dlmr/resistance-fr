@@ -18,6 +18,9 @@ class BotLog(commands.GroupCog):
 
   def __init__(self, client: commands.AutoShardedBot):
     self.__client = client # pylint: disable=unused-private-member
+  
+  @commands.Cog.listener()
+  async def on_ready(self):
     log.info('BotLog cog loaded !')
 
   @app_commands.command(name='help', description='Get help about a command')

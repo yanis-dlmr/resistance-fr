@@ -15,6 +15,9 @@ class Utils(commands.GroupCog):
 
   def __init__(self, client: commands.AutoShardedBot):
     self.__client = client
+  
+  @commands.Cog.listener()
+  async def on_ready(self):
     log.info('Utils cog loaded !')
 
   @app_commands.command(name='help', description='Get help about a command')
