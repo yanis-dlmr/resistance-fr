@@ -89,8 +89,9 @@ class RepeatedTimer:
       self.is_running = True
 
   def stop(self):
-    self.__timer.cancel()
-    self.is_running = False
+    if self.is_running:
+      self.__timer.cancel()
+      self.is_running = False
 
 
 class UsefulClient(commands.AutoShardedBot):
@@ -175,7 +176,7 @@ class UsefulClient(commands.AutoShardedBot):
     log.error('Unhandled exception in %s\n%s', ctx.command, exception, exc_info=True)
 
   @commands.before_invoke
-  def log_before_invoke(self, ctx: commands.Context, /): # !fixme
+  async def log_before_invoke(self, ctx: commands.Context, /): # !fixme
     log.debug('Command %s invoked by %s in %s', ctx.command, ctx.author, ctx.channel)
 
   def on_end_handler(self, sig: int, frame) -> None: # pylint: disable=unused-argument
