@@ -1,0 +1,36 @@
+name: Python Package
+
+on:
+  push:
+    branches: [main, v*]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [main]
+  schedule:
+    - cron: "45 8 * * 4"
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          # install dev dependencies
+          pip install -r requirements-dev.txt
+      - name: hatch run dev:check
+        run: |
+          python -m pytest
+          python -m pylint src
+          python -m yapf -dr src
