@@ -1,5 +1,5 @@
 # this is the very basic environment file
-# only python and cudatoolkit are installed
+# only python is installed via conda
 # everything else is installed via pip
 
 name: dsc              # you should be able to change it
