@@ -37,16 +37,20 @@
 import os
 import sys
 
-if sys.version_info < (3, 11):
-  raise RuntimeError('This program requires Python 3.11 or later.')
-
-from src import UsefulClient
-
-BOT_TOKEN = os.getenv('BOT_TOKEN')
-BOT_PREFIX = os.getenv('BOT_PREFIX', '!')
-BOT_INVITE = os.getenv('BOT_INVITE')
+if sys.version_info < (3, 10):
+  raise RuntimeError('This program requires Python 3.10 or later.')
 
 if __name__ == '__main__':
+  import discord
+  from src import UsefulClient
 
+  BOT_TOKEN = os.getenv('BOT_TOKEN')
+  BOT_PREFIX = os.getenv('BOT_PREFIX', '!')
+  BOT_INVITE = os.getenv('BOT_INVITE')
   client = UsefulClient(BOT_PREFIX, BOT_INVITE, help_command=None)
+
+  @client.tree.error # dafuck we need to do to have an proper error handler
+  async def on_error(interaction: discord.Interaction, error: Exception):
+    return await client.on_app_command_error(interaction, error)
+
   client.run(BOT_TOKEN)
