@@ -50,13 +50,7 @@ class BotLog(commands.GroupCog):
   async def dump(self, interaction: discord.Interaction):
     file = discord.File('bot.log')
     embed = build_success_embed(title=f'{SUCCESS_EMOJI} bot log dumped !',)
-    try:
-      await send_channel_file(interaction.channel, file)
-    except Exception as e:                           # pylint: disable=broad-except
-      embed = build_error_embed(
-        title=f'{FAIL_EMOJI} bot log dump failed !',
-        description=f'```{e}```',
-      )
+    await send_channel_file(interaction.channel, file)
     await reply_with_embed(interaction, embed)
 
   @app_commands.command(name='filter', description='Filter the bot log based on some expressions 🔎')
@@ -83,40 +77,33 @@ class BotLog(commands.GroupCog):
       description=f'```{mode.name} {expressions}```',
     )
 
-    try:
-      # there are so many things that can go wrong here...
+    # there are so many things that can go wrong here...
 
-      # read the file chunk by chunk
-      # each chunk is all the lines that are between two timestamps
+    # read the file chunk by chunk
+    # each chunk is all the lines that are between two timestamps
 
-      with open('bot.log', 'r', encoding='utf-8') as f:
-        lines = f.readlines()
+    with open('bot.log', 'r', encoding='utf-8') as f:
+      lines = f.readlines()
 
-      chunks: list[str] = []
-      for line in lines:
-        # timestamp is : '%Y-%m-%d %H:%M:%S' and is located anywhere in the line
-        if re.match(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', line):
-          chunks.append(line)
-        elif len(chunks) == 0:
-          chunks.append(line)
-        else:
-          chunks[-1] += line
-      fmode = all if mode.value == 0 else any
+    chunks: list[str] = []
+    for line in lines:
+      # timestamp is : '%Y-%m-%d %H:%M:%S' and is located anywhere in the line
+      if re.match(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}', line):
+        chunks.append(line)
+      elif len(chunks) == 0:
+        chunks.append(line)
+      else:
+        chunks[-1] += line
+    fmode = all if mode.value == 0 else any
 
-      new_file: list[str] = [c for c in chunks if fmode([e in c.lower() for e in expressions])]
+    new_file: list[str] = [c for c in chunks if fmode([e in c.lower() for e in expressions])]
 
-      with open('tmp.bot.log', 'w', encoding='utf-8') as f:
-        f.writelines(new_file)
-      file = discord.File('tmp.bot.log')
-      await send_channel_file(interaction.channel, file)
-      os.remove('tmp.bot.log')
+    with open('tmp.bot.log', 'w', encoding='utf-8') as f:
+      f.writelines(new_file)
+    file = discord.File('tmp.bot.log')
+    await send_channel_file(interaction.channel, file)
+    os.remove('tmp.bot.log')
 
-    except Exception as e: # pylint: disable=broad-except
-
-      embed = build_error_embed(
-        title=f'{FAIL_EMOJI} bot log filter failed !',
-        description=f'```{e}```',
-      )
     await reply_with_embed(interaction, embed)
 
   @app_commands.command(name='last', description='Get the last lines of the bot log ♻️')
@@ -125,31 +112,22 @@ class BotLog(commands.GroupCog):
   async def last(self, interaction: discord.Integration, lines: Optional[app_commands.Choice[int]] = None):
     if lines is None:
       lines = app_commands.Choice(name='10', value=10)
-
     # for this request we will build the success embed after the request
 
-    try:
-      # there are so many things that can go wrong here...
-      with open('bot.log', 'r', encoding='utf-8') as f:
-        file_lines = f.readlines()
+    # there are so many things that can go wrong here...
+    with open('bot.log', 'r', encoding='utf-8') as f:
+      file_lines = f.readlines()
 
-      new_file: list[str] = file_lines[-lines.value:]
+    new_file: list[str] = file_lines[-lines.value:]
 
-      with open('tmp.bot.log', 'w', encoding='utf-8') as f:
-        f.writelines(new_file)
-      file = discord.File('tmp.bot.log')
-      await send_channel_file(interaction.channel, file)
-      os.remove('tmp.bot.log')
+    with open('tmp.bot.log', 'w', encoding='utf-8') as f:
+      f.writelines(new_file)
+    file = discord.File('tmp.bot.log')
+    await send_channel_file(interaction.channel, file)
+    os.remove('tmp.bot.log')
 
-    except Exception as e: # pylint: disable=broad-except
-
-      embed = build_error_embed(
-        title=f'{FAIL_EMOJI} bot log filter failed !',
-        description=f'```{e}```',
-      )
-    else:
-      embed = build_success_embed(
-        title=f'{SUCCESS_EMOJI} bot log filtered !',
-        description=f'```got {(n:=len(new_file))}/{lines.value} line{"s" if n > 1 else ""}```',
-      )
+    embed = build_success_embed(
+      title=f'{SUCCESS_EMOJI} bot log filtered !',
+      description=f'```got {(n:=len(new_file))}/{lines.value} line{"s" if n > 1 else ""}```',
+    )
     await reply_with_embed(interaction, embed)

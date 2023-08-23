@@ -157,53 +157,35 @@ class Xp(commands.GroupCog):
   async def leaderboard(self, interaction: discord.Interaction):
     embed: discord.Embed = None
     view: LeaderBoardView = None
-    followup = True
-    try:
-      embed = build_info_embed(
-        title=f'📊 Leaderboard of {interaction.guild.name}',
-        description='...loading...',
-      )
-      view = LeaderBoardView(interaction, embed, self.__client, self.__db)
-      await send_xp_embed(interaction, embed, view)
 
-    except Exception as e: # pylint: disable=broad-except
+    embed = build_info_embed(
+      title=f'📊 Leaderboard of {interaction.guild.name}',
+      description='...loading...',
+    )
+    view = LeaderBoardView(interaction, embed, self.__client, self.__db)
+    await send_xp_embed(interaction, embed, view)
 
-      followup = False
-      embed = build_error_embed(
-        title='Oopsie, something went wrong !',
-        description=f'Please let an admin know about this issue : \n```py\n{e.with_traceback(None)}\n```',
-      )
-      await reply_with_embed(interaction, embed)
-
-    if followup:
-      first_page = view.first_page
-      embed.description = first_page
-      embed.set_footer(text=f'Page 1/{view.n_pages}')
-      await interaction.edit_original_response(embed=embed, view=view)
+    first_page = view.first_page
+    embed.description = first_page
+    embed.set_footer(text=f'Page 1/{view.n_pages}')
+    await interaction.edit_original_response(embed=embed, view=view)
 
   @app_commands.command(name='no_life', description='Alias to top 3 of `leaderboard` 📊')
   async def no_life(self, interaction: discord.Interaction):
     embed: discord.Embed = None
-    try:
-      embed = build_info_embed(
-        title=f'Top 3 of {interaction.guild.name}',
-        description=':flag_fr: les pires no-lifes du serveur :flag_fr:',
+    embed = build_info_embed(
+      title=f'Top 3 of {interaction.guild.name}',
+      description=':flag_fr: les pires no-lifes du serveur :flag_fr:',
+    )
+    # do not change the "3" 🥲
+    for i, user_entry in enumerate(self.__db.top_users(3)):
+      user = interaction.guild.get_member(user_entry.id)
+      xp = user_entry.xp
+      embed.add_field(
+        name='',
+        value=
+        f'{TROPHY_EMOJIS[i]} `{user.display_name}` ({user.mention}) {xp} XP ({self.__client.xp_to_lvl(xp)})',
+        inline=False,
       )
-      # do not change the "3" 🥲
-      for i, user_entry in enumerate(self.__db.top_users(3)):
-        user = interaction.guild.get_member(user_entry.id)
-        xp = user_entry.xp
-        embed.add_field(
-          name='',
-          value=
-          f'{TROPHY_EMOJIS[i]} `{user.display_name}` ({user.mention}) {xp} XP ({self.__client.xp_to_lvl(xp)})',
-          inline=False,
-        )
 
-    except Exception as e: # pylint: disable=broad-except
-
-      embed = build_error_embed(
-        title='Oopsie, something went wrong !',
-        description='Please let an admin know about this issue : \n```py\n' + str(e) + '\n```',
-      )
     await reply_with_embed(interaction, embed)
