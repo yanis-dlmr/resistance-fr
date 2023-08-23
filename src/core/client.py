@@ -17,6 +17,7 @@ from discord.message import Message
 from ..helper import *
 from ..helper import logger
 from ..helper.logger import logger as log
+from ..messages import *
 from ..commands import *
 from ..db import *
 
@@ -143,8 +144,8 @@ class UsefulClient(commands.AutoShardedBot):
     self.__db.test()
     self.__db.connect()
 
-    signal.signal(signal.SIGINT, self.on_end_handler)
-    signal.signal(signal.SIGTERM, self.on_end_handler)
+    signal.signal(signal.SIGINT, self.on_end)
+    signal.signal(signal.SIGTERM, self.on_end)
 
     log.info('Ready to connect 🥳 !')
 
@@ -162,24 +163,38 @@ class UsefulClient(commands.AutoShardedBot):
     super().run(
       token,
       reconnect=True,
-      log_handler=logger.console_handler,
       log_formatter=logger.default_formatter,
       log_level=logging.INFO,                 # discord.py is too noisy
     )
-
-  @override
-  async def on_error(self, event_method: str, *args: Any, **kwargs: Any): # pylint: disable=unused-argument
-    log.error('Unhandled exception in %s', event_method, exc_info=True)
-
-  @override
-  async def on_command_error(self, ctx: commands.Context, exception: Exception, /):
-    log.error('Unhandled exception in %s\n%s', ctx.command, exception, exc_info=True)
 
   @commands.before_invoke
   async def log_before_invoke(self, ctx: commands.Context, /): # !fixme
     log.debug('Command %s invoked by %s in %s', ctx.command, ctx.author, ctx.channel)
 
-  def on_end_handler(self, sig: int, frame) -> None: # pylint: disable=unused-argument
+  @staticmethod
+  async def on_app_command_error(interaction: discord.Interaction, error: Exception):
+    """ Handles errors from slash commands. """
+    if isinstance(error, commands.MissingRequiredArgument):
+      embed = build_error_embed(
+        title='Missing argument !',
+        description=f'{FAIL_EMOJI} You need to specify the `{error.param.name}` argument.',
+      )
+      await reply_with_embed(interaction, embed)
+    elif isinstance(error, commands.BadArgument):
+      embed = build_error_embed(
+        title='Bad argument !',
+        description=f'{FAIL_EMOJI} You need to specify a valid `{error.param.name}` argument.',
+      )
+      await reply_with_embed(interaction, embed)
+    else:
+      embed = build_error_embed(
+        title='Oopsie, something went wrong !',
+        description=
+        f'{FAIL_EMOJI} Please let an admin know about this issue : \n```py\n{error.with_traceback(None)}\n```',
+      )
+      await reply_with_embed(interaction, embed)
+
+  def on_end(self, sig: int, _: Any) -> None:
     """
     Synchronously shuts down the bot.
 
@@ -194,6 +209,7 @@ class UsefulClient(commands.AutoShardedBot):
     The frame object.
     """
     print('', end='\r')
+    log.warning('Received signal %s, shutting down...', signal.Signals(sig).name)
     log.info('Shutting down...')
     self.__db.disconnect()
     log.info('Shutdown complete')
