@@ -263,13 +263,19 @@ class UsefulClient(commands.AutoShardedBot):
            UsefulClient.xp_from_additionnal_attatchements(len(message.attachments))
 
   @override
-  async def on_message(self, message: Message): # pylint: disable=arguments-differ
+  async def on_message(self, message: Message, /):
     if message.author.bot:
-      await self.process_cmd(message)
+      return await self.process_cmd(message)
     await self.process_msg(message)
 
   async def process_msg(self, message: Message): # pylint: disable=unused-argument
     ...
 
   async def process_cmd(self, message: Message): # pylint: disable=unused-argument
+    ...
+
+  async def dispatch_reactions(self, message: Message): # pylint: disable=unused-argument
+    ...
+
+  async def do_auto_responses(self, message: Message): # pylint: disable=unused-argument
     ...
