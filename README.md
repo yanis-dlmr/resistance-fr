@@ -105,11 +105,12 @@ Contact us on Discord :
 
 ## 🧪 Testing
 
-Oh god ... please don't. Still, make sure you have `pylint` and `pytest` installed, and run the following :
+Oh god ... please don't. Still, make sure you have everything installed, and run the following :
 
 ```bash
-python -m pylint src
 python -m pytest
+python -m pylint src
+python -m yapf -dr src
 ```
 
 ## 🧑‍🏫 Contributing
