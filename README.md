@@ -8,7 +8,7 @@
 [![Maintenance](https://img.shields.io/badge/maintained%3F-yes-green.svg)](https://GitHub.com/yanis-dlmr/resistance-fr/graphs/commit-activity)
 
 [![Python Package](https://github.com/yanis-dlmr/resistance-fr/actions/workflows/python-package.yml/badge.svg)](https://github.com/yanis-dlmr/resistance-fr/actions/workflows/python-package.yml)
-[![GitHub release](https://img.shields.io/github/release/yanis-dlmr/resistance-fr))](https://github.com/yanis-dlmr/resistance-fr))
+[![GitHub release](https://img.shields.io/github/release/yanis-dlmr/resistance-fr))](https://github.com/yanis-dlmr/resistance-fr)
 [![Author](https://img.shields.io/badge/author-@ThomasByr-blue)](https://github.com/ThomasByr)
 [![Author](https://img.shields.io/badge/author-@Dlmr-blue)](https://github.com/yanis-dlmr)
 
@@ -37,13 +37,18 @@ This is the discord bot of the unofficial Black Desert Mobile French community d
 To begin, create an `.env` file in the root directory of the project following the [`.env.example`](.env.example) file (all fields required) :
 
 ```env
-BOT_ID = 
-BOT_PREFIX = 
+BOT_ID = 1000490579291017337
+BOT_PREFIX = "$"
 BOT_TOKEN = 
-BOT_INVITE = 
+BOT_INVITE = "https://discord.com/oauth2/authorize?client_id=1000490579291017337&scope=bot&permissions="
 
 DB_USER = 
 DB_PASSWD = 
+DB_NAME = 
+DB_URL = 
+DB_PORT = 27017
+
+DEBUG = False
 ```
 
 ## 👩‍🏫 Usage & Setup
@@ -55,7 +60,7 @@ DB_PASSWD =
 >
 > Please note we do not officially support Windows or MacOS, but we do provide some instructions for those who want to use it on these platforms.
 
-You do not explicitly need a conda environment for the bot to run. But it is always recommended nontheless, especially because the next LTS of Ubuntu won't let users pip-install anything without a virtual environment. At the time of writing, this bot requires `python >= 3.11` to run.
+You do not explicitly need a conda environment for the bot to run. But it is always recommended nontheless, especially because the next LTS of Ubuntu won't let users pip-install anything without a virtual environment. At the time of writing, this bot requires `python >= 3.10` to run.
 
 ```bash
 # Clone the repository
@@ -71,7 +76,15 @@ conda env create -f environment.yml -y
 conda activate dsc
 ```
 
-Finally, run the bot in the background with `bash run.bash` or type the following :
+Finally, run the bot in the background with `nohup` :
+
+```bash
+# Runs the bot in the background
+nohup python resistance-fr.py &
+# pkill -U $USER -f resistance-fr # to kill the bot
+```
+
+or in the foreground :
 
 ```bash
 # Runs the bot (lets you Ctrl+C to stop it)
@@ -101,7 +114,7 @@ Contact us on Discord :
 - blcklight#0
 - yanisdlmr#0
 
-> [Create a new Issue](https://github.com/yanis-dlmr/resistance-fr/issues/new/choose)
+> [➕ Create a new Issue](https://github.com/yanis-dlmr/resistance-fr/issues/new/choose)
 
 ## 🧪 Testing
 
