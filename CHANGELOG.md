@@ -10,3 +10,4 @@
 - added `xp` group of commands
 - added all legal and github related stuff
 - `poll`s are now working 🎉 !
+- added global app commands error handler
