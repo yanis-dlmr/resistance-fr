@@ -8,7 +8,7 @@
 [![Maintenance](https://img.shields.io/badge/maintained%3F-yes-green.svg)](https://GitHub.com/yanis-dlmr/resistance-fr/graphs/commit-activity)
 
 [![Python Package](https://github.com/yanis-dlmr/resistance-fr/actions/workflows/python-package.yml/badge.svg)](https://github.com/yanis-dlmr/resistance-fr/actions/workflows/python-package.yml)
-[![GitHub release](https://img.shields.io/github/release/yanis-dlmr/resistance-fr))](https://github.com/yanis-dlmr/resistance-fr)
+[![GitHub release](https://img.shields.io/github/release/yanis-dlmr/resistance-fr)](https://github.com/yanis-dlmr/resistance-fr)
 [![Author](https://img.shields.io/badge/author-@ThomasByr-blue)](https://github.com/ThomasByr)
 [![Author](https://img.shields.io/badge/author-@Dlmr-blue)](https://github.com/yanis-dlmr)
 
