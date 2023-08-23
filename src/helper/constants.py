@@ -9,7 +9,7 @@ ME_IMG = "https://raw.githubusercontent.com/ThomasByr/useful-moderator/master/as
 
 LOADING_EMOJI = discord.PartialEmoji(name='loading', id=983470338417516615, animated=True)
 SUCCESS_EMOJI = discord.PartialEmoji(name='check_mark', id=1014226765863989391, animated=True)
-FAIL_EMOJI = discord.PartialEmoji(name='across', id=1014227632461709383, animated=True)
+FAIL_EMOJI = discord.PartialEmoji(name='cross_no', id=1135923699682398208, animated=True)
 
 GEAR_EMOJI = '⚙️'
 NUMERIC_EMOJIS = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
