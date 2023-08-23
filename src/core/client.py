@@ -5,6 +5,7 @@ import logging
 import datetime
 import math
 from threading import Timer
+from functools import lru_cache
 
 from collections.abc import Callable
 from typing import Any
@@ -229,6 +230,7 @@ class UsefulClient(commands.AutoShardedBot):
     log.info('Setting up complete')
 
   @staticmethod
+  @lru_cache(maxsize=None)
   def lvl_to_xp(lvl: int) -> int:
     """Converts a level to xp."""
     return int(1.6412*lvl*lvl*lvl + 23.441*lvl*lvl + 67.981*lvl)
@@ -244,6 +246,7 @@ class UsefulClient(commands.AutoShardedBot):
     for i in range(1, UsefulClient.MAX_LVL):
       if UsefulClient.lvl_to_xp(i) <= xp < UsefulClient.lvl_to_xp(i + 1):
         return i
+    log.warning('Maximum level hit with %d xp', xp)
     return UsefulClient.MAX_LVL
 
   @staticmethod
