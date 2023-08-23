@@ -8,7 +8,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.11        # developed w/ 3.11
+  - python=3.10        # developed w/ 3.11.4
   - pip                # pip is needed to install the rest
   - pip:
     - -r requirements.txt
