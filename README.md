@@ -200,6 +200,7 @@ Please read the [changelog](changelog.md) file for the full history !
 - added all legal and github related stuff
 - `poll`s are now working 🎉 !
 - added global app commands error handler
+- dispatcher and embed_builder are now in their own classes
 
 </details>
 
