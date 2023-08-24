@@ -266,22 +266,25 @@ class UsefulClient(commands.AutoShardedBot):
     return round(math.log10(msg_len + 1) * 10)
 
   @staticmethod
-  def xp_from_additionnal_attatchements(attachments: int) -> int:
-    return 5 * attachments
-
-  @staticmethod
   def xp_from_message(message: Message) -> int:
     return UsefulClient.xp_from_msg_len(len(message.content)) +\
-           UsefulClient.xp_from_additionnal_attatchements(len(message.attachments))
+           5 * len(message.attachments) +\
+           2 * len(message.stickers)
 
   @override
   async def on_message(self, message: Message, /):
+    if message.channel.type is discord.ChannelType.private:
+      return
+
+    return # remove this line to enable xp and event dispatching
     if message.author.bot:
       return await self.process_cmd(message)
     await self.process_msg(message)
 
-  async def process_msg(self, message: Message): # pylint: disable=unused-argument
-    ...
+  async def process_msg(self, message: Message):
+    old_xp = self.__db.add_xp_to_user(xp_to_add := UsefulClient.xp_from_message(message))
+    new_xp = old_xp + xp_to_add
+    old_lvl, new_lvl = UsefulClient.xp_to_lvl(old_xp), UsefulClient.xp_to_lvl(new_xp)
 
   async def process_cmd(self, message: Message): # pylint: disable=unused-argument
     ...
