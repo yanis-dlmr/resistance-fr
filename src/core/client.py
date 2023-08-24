@@ -18,7 +18,7 @@ from discord.message import Message
 from ..helper import *
 from ..helper import logger
 from ..helper.logger import logger as log
-from ..messages import *
+from ..messages import MessageSender, Embedder
 from ..commands import *
 from ..db import *
 
@@ -110,6 +110,8 @@ class UsefulClient(commands.AutoShardedBot):
     super().__init__(command_prefix=prefix, intents=intents, **options)
 
     self.__db = UsefulDatabase()
+    self.__dispatcher: MessageSender = MessageSender()
+    self.__embed_builder: Embedder = Embedder()
 
   @property
   def invite(self) -> str:
@@ -122,6 +124,14 @@ class UsefulClient(commands.AutoShardedBot):
   @property
   def start_time(self) -> float:
     return self.__start_time.timestamp()
+
+  @property
+  def dispatcher(self) -> MessageSender:
+    return self.__dispatcher
+
+  @property
+  def embed_builder(self) -> Embedder:
+    return self.__embed_builder
 
   @override
   async def on_ready(self):
@@ -172,28 +182,30 @@ class UsefulClient(commands.AutoShardedBot):
   async def log_before_invoke(self, ctx: commands.Context, /): # !fixme
     log.debug('Command %s invoked by %s in %s', ctx.command, ctx.author, ctx.channel)
 
-  @staticmethod
-  async def on_app_command_error(interaction: discord.Interaction, error: Exception):
+  async def on_app_command_error(self, interaction: discord.Interaction, error: Exception):
     """ Handles errors from slash commands. """
-    if isinstance(error, commands.MissingRequiredArgument):
-      embed = build_error_embed(
-        title='Missing argument !',
-        description=f'{FAIL_EMOJI} You need to specify the `{error.param.name}` argument.',
-      )
-      await reply_with_embed(interaction, embed)
-    elif isinstance(error, commands.BadArgument):
-      embed = build_error_embed(
-        title='Bad argument !',
-        description=f'{FAIL_EMOJI} You need to specify a valid `{error.param.name}` argument.',
-      )
-      await reply_with_embed(interaction, embed)
-    else:
-      embed = build_error_embed(
-        title='Oopsie, something went wrong !',
-        description=
-        f'{FAIL_EMOJI} Please let an admin know about this issue : \n```py\n{error.with_traceback(None)}\n```',
-      )
-      await reply_with_embed(interaction, embed)
+    embed: discord.Embed = None
+    match error:
+      case commands.MissingRequiredArgument:
+        embed = self.embed_builder.build_error_embed(
+          title='Missing argument !',
+          description=f'{FAIL_EMOJI} You need to specify the `{error.param.name}` argument.',
+        )
+      case commands.BadArgument:
+        embed = self.embed_builder.build_error_embed(
+          title='Bad argument !',
+          description=f'{FAIL_EMOJI} You need to specify a valid `{error.param.name}` argument.',
+        )
+      case _:
+        embed = self.embed_builder.build_error_embed(
+          title='Oopsie, something went wrong !',
+          description=
+          f'{FAIL_EMOJI} Please let an admin know about this issue : \n```py\n{error.with_traceback(None)}\n```',
+        )
+    if not embed:
+      log.critical('Panic while handling slash command unhandled exception !')
+      sys.exit(1)
+    await self.dispatcher.reply_with_embed(interaction, embed)
 
   def on_end(self, sig: int, _: Any) -> None:
     """

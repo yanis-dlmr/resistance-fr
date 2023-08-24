@@ -1,4 +1,4 @@
-from typing import Optional, Callable
+from collections.abc import Callable
 from typing_extensions import override
 
 import discord
@@ -7,7 +7,7 @@ from discord.ext import commands
 
 from ..helper import *
 from ..helper.logger import logger as log
-from ..messages import *
+from ..messages import MessageSender, Embedder, CustomView
 
 __all__ = ['Poll']
 
@@ -16,6 +16,8 @@ class Pool_View(CustomView):
 
   def __init__(
     self,
+    dispatcher: MessageSender,
+    embed_builder: Embedder,
     orig_inter: discord.Interaction,
     embed: discord.Embed,
     question: str,
@@ -24,11 +26,13 @@ class Pool_View(CustomView):
     auto_close_in: int = None,
   ):
     super().__init__(orig_inter=orig_inter, timeout=auto_close_in)
+    self.__dispatcher: MessageSender = dispatcher # pylint: disable=unused-private-member
+    self.__embed_builder: Embedder = embed_builder
     self.embed = embed
     self.question = question
     self.choices = choices
     self.allow_multiple = allow_multiple
-    self.user_choices: dict[int, set[int]] = {} # user_id: choice_id
+    self.user_choices: dict[int, set[int]] = {}   # user_id: choice_id
     self.results = [0 for _ in range(len(choices))]
 
     for i, choice in enumerate(choices):
@@ -54,7 +58,7 @@ class Pool_View(CustomView):
   @discord.ui.button(emoji=SUCCESS_EMOJI, label='End the poll', style=discord.ButtonStyle.primary)
   async def end_poll(self, interaction: discord.Interaction, _: discord.ui.Button):
     if not interaction.user.resolved_permissions.manage_guild:
-      embed = build_error_embed(
+      embed = self.__embed_builder.build_error_embed(
         title='You do not have the required permissions !',
         description='You need to have the `Manage Server` permission to end the poll.',
       )
@@ -78,14 +82,14 @@ class Pool_View(CustomView):
   @discord.ui.button(emoji=GEAR_EMOJI, style=discord.ButtonStyle.blurple)
   async def edit_poll(self, interaction: discord.Interaction, _: discord.ui.Button):
     if not interaction.user.resolved_permissions.manage_guild:
-      embed = build_error_embed(
+      embed = self.__embed_builder.build_error_embed(
         title='You do not have the required permissions !',
         description='You need to have the `Manage Server` permission to edit the poll.',
       )
       await interaction.response.send_message(embed=embed, ephemeral=True)
       return
 
-    embed = build_info_embed(
+    embed = self.__embed_builder.build_info_embed(
       title='This functionality is not implemented yet !',
       description='Please wait for a future update.',
     )
@@ -118,18 +122,18 @@ class MC_Poll_View(Pool_View):
         if i in u_choices:
           self.results[i] -= 1
           u_choices.remove(i)
-          embed = build_poll_followup_embed(NUMERIC_EMOJIS[i], choice, True)
-          await send_poll_followup_embed(interaction, embed)
+          embed = self.__embed_builder.build_poll_followup_embed(NUMERIC_EMOJIS[i], choice, True)
+          await self.__dispatcher.send_poll_followup_embed(interaction, embed)
         else:
           self.results[i] += 1
           u_choices.add(i)
-          embed = build_poll_followup_embed(NUMERIC_EMOJIS[i], choice)
-          await send_poll_followup_embed(interaction, embed)
+          embed = self.__embed_builder.build_poll_followup_embed(NUMERIC_EMOJIS[i], choice)
+          await self.__dispatcher.send_poll_followup_embed(interaction, embed)
       elif i in u_choices:
         self.results[i] -= 1
         u_choices.remove(i)
-        embed = build_poll_followup_embed(NUMERIC_EMOJIS[i], choice, True)
-        await send_poll_followup_embed(interaction, embed)
+        embed = self.__embed_builder.build_poll_followup_embed(NUMERIC_EMOJIS[i], choice, True)
+        await self.__dispatcher.send_poll_followup_embed(interaction, embed)
       else:
         if len(u_choices) > 0:
           prev_choice = list(u_choices)[0]
@@ -139,19 +143,22 @@ class MC_Poll_View(Pool_View):
           u_choices.clear()
         self.results[i] += 1
         u_choices.add(i)
-        embed = build_poll_followup_embed(NUMERIC_EMOJIS[i], choice, False, prev_choice_emote,
-                                          prev_choice_str)
-        await send_poll_followup_embed(interaction, embed)
+        embed = self.__embed_builder.build_poll_followup_embed(NUMERIC_EMOJIS[i], choice, False,
+                                                               prev_choice_emote, prev_choice_str)
+        await self.__dispatcher.send_poll_followup_embed(interaction, embed)
 
-      t, d = build_description_line_for_poll_embed(i, choice, self.results[i], sum(self.results))
+      t, d = self.__embed_builder.build_description_line_for_poll_embed(i, choice, self.results[i],
+                                                                        sum(self.results))
       self.embed.set_field_at(i, name=t, value=d, inline=False)
       self.edit_button(f'choice_{i}', emoji=NUMERIC_EMOJIS[i], label=f'{self.results[i]}')
       if prev_choice is not None:
         self.edit_button(f'choice_{prev_choice}',
                          emoji=NUMERIC_EMOJIS[prev_choice],
                          label=f'{self.results[prev_choice]}')
-        t, d = build_description_line_for_poll_embed(prev_choice, self.choices[prev_choice],
-                                                     self.results[prev_choice], sum(self.results))
+        t, d = self.__embed_builder.build_description_line_for_poll_embed(prev_choice,
+                                                                          self.choices[prev_choice],
+                                                                          self.results[prev_choice],
+                                                                          sum(self.results))
         self.embed.set_field_at(prev_choice, name=t, value=d, inline=False)
       await self.interaction.edit_original_response(embed=self.embed, view=self)
 
@@ -171,12 +178,15 @@ class YN_Poll_View(Pool_View):
 
   def __init__(
     self,
+    dispatcher: MessageSender,
+    embed_builder: Embedder,
     orig_inter: discord.Interaction,
     embed: discord.Embed,
     question: str,
     auto_close_in: int = None,
   ):
-    super().__init__(orig_inter, embed, question, ['Yes', 'No'], False, auto_close_in)
+    super().__init__(dispatcher, embed_builder, orig_inter, embed, question, ['Yes', 'No'], False,
+                     auto_close_in)
 
   @override
   def choice_callback(self, i: int, choice: str) -> Callable[[discord.Interaction], None]:
@@ -194,8 +204,8 @@ class YN_Poll_View(Pool_View):
       if i in u_choices:
         self.results[i] -= 1
         u_choices.remove(i)
-        embed = build_poll_followup_embed(YESNO_EMOJIS[i], choice, True)
-        await send_poll_followup_embed(interaction, embed)
+        embed = self.__embed_builder.build_poll_followup_embed(YESNO_EMOJIS[i], choice, True)
+        await self.__dispatcher.send_poll_followup_embed(interaction, embed)
       else:
         if len(u_choices) > 0:
           self.results[list(u_choices)[0]] -= 1
@@ -205,18 +215,20 @@ class YN_Poll_View(Pool_View):
         self.results[i] += 1
         u_choices.clear()
         u_choices.add(i)
-        embed = build_poll_followup_embed(YESNO_EMOJIS[i], choice, False, prev_choice_emote, prev_choice_str)
-        await send_poll_followup_embed(interaction, embed)
+        embed = self.__embed_builder.build_poll_followup_embed(YESNO_EMOJIS[i], choice, False,
+                                                               prev_choice_emote, prev_choice_str)
+        await self.__dispatcher.send_poll_followup_embed(interaction, embed)
 
-      t, d = build_description_line_for_yesno_poll_embed(i, self.results[i], sum(self.results))
+      t, d = self.__embed_builder.build_description_line_for_yesno_poll_embed(
+        i, self.results[i], sum(self.results))
       self.embed.set_field_at(i, name=t, value=d, inline=False)
       self.edit_button(f'choice_{i}', emoji=YESNO_EMOJIS[i], label=f'{self.results[i]}')
       if prev_choice is not None:
         self.edit_button(f'choice_{prev_choice}',
                          emoji=YESNO_EMOJIS[prev_choice],
                          label=f'{self.results[prev_choice]}')
-        t, d = build_description_line_for_yesno_poll_embed(prev_choice, self.results[prev_choice],
-                                                           sum(self.results))
+        t, d = self.__embed_builder.build_description_line_for_yesno_poll_embed(
+          prev_choice, self.results[prev_choice], sum(self.results))
         self.embed.set_field_at(prev_choice, name=t, value=d, inline=False)
       await self.interaction.edit_original_response(embed=self.embed, view=self)
 
@@ -237,6 +249,8 @@ class Poll(commands.GroupCog):
 
   def __init__(self, client: commands.AutoShardedBot):
     self.__client = client # pylint: disable=unused-private-member
+    self.__dispatcher: MessageSender = client.dispatcher
+    self.__embed_builder: Embedder = client.embed_builder
 
   @commands.Cog.listener()
   async def on_ready(self):
@@ -244,7 +258,7 @@ class Poll(commands.GroupCog):
 
   @app_commands.command(name='help', description='Get help about a command')
   async def help(self, interaction: discord.Interaction):
-    embed = build_help_embed(
+    embed = self.__embed_builder.build_help_embed(
       title='Help for `Poll` group',
       description='`Poll` group contains commands that are useful for creating polls '
       ': you can create a poll with multiple choices, or a poll with only two choices (yes/no) to easily get the opinion of your members.',
@@ -257,7 +271,7 @@ class Poll(commands.GroupCog):
       value='Create a poll with only two choices : yes or no.',
       inline=False,
     )
-    await reply_with_embed(interaction, embed)
+    await self.__dispatcher.reply_with_embed(interaction, embed)
 
   @app_commands.command(name='create', description='Create a poll with multiple choices 📊')
   @app_commands.describe(
@@ -292,43 +306,45 @@ class Poll(commands.GroupCog):
     question: str,
     choice0: str,
     choice1: str,
-    choice2: Optional[str] = None,
-    choice3: Optional[str] = None,
-    choice4: Optional[str] = None,
-    choice5: Optional[str] = None,
-    choice6: Optional[str] = None,
-    choice7: Optional[str] = None,
-    choice8: Optional[str] = None,
-    choice9: Optional[str] = None,
+    choice2: str | None = None,
+    choice3: str | None = None,
+    choice4: str | None = None,
+    choice5: str | None = None,
+    choice6: str | None = None,
+    choice7: str | None = None,
+    choice8: str | None = None,
+    choice9: str | None = None,
     allow_multiple: bool = False,
-    auto_close_in: Optional[app_commands.Choice[int]] = None,
-  ):                                                          # pylint: disable=too-many-arguments
+    auto_close_in: app_commands.Choice[int] | None = None,
+  ):                                                       # pylint: disable=too-many-arguments
 
     choices = [choice0, choice1, choice2, choice3, choice4, choice5, choice6, choice7, choice8, choice9]
     choices = [choice for choice in choices if choice is not None]
     if len(choices) < 2:
-      embed = build_error_embed(
+      embed = self.__embed_builder.build_error_embed(
         title=f'{FAIL_EMOJI} not enough choices !',
         description='```You must provide at least two choices to create a poll.```',
       )
-      await reply_with_status_embed(interaction, embed, failed=True)
+      await self.__dispatcher.reply_with_status_embed(interaction, embed, failed=True)
       return
     if len(choices) > 10:
-      embed = build_error_embed(
+      embed = self.__embed_builder.build_error_embed(
         title=f'{FAIL_EMOJI} too many choices !',
         description='```You cannot provide more than ten choices to create a poll.```',
       )
-      await reply_with_status_embed(interaction, embed, failed=True)
+      await self.__dispatcher.reply_with_status_embed(interaction, embed, failed=True)
       return
 
     auto_close_in = None if auto_close_in is None else auto_close_in.value
     # create the embed
-    embed = build_poll_embed(question, choices, interaction.user, interaction.user.display_avatar,
-                             allow_multiple, auto_close_in)
+    embed = self.__embed_builder.build_poll_embed(question, choices, interaction.user,
+                                                  interaction.user.display_avatar, allow_multiple,
+                                                  auto_close_in)
     # create a view with the buttons
-    view = MC_Poll_View(interaction, embed, question, choices, allow_multiple, auto_close_in)
+    view = MC_Poll_View(self.__dispatcher, self.__embed_builder, interaction, embed, question, choices,
+                        allow_multiple, auto_close_in)
     # send the message
-    await send_poll_embed(interaction, embed, view)
+    await self.__dispatcher.send_poll_embed(interaction, embed, view)
 
   @app_commands.command(name='yesno', description='Create a poll with only two choices : yes or no 👍')
   @app_commands.describe(
@@ -350,13 +366,13 @@ class Poll(commands.GroupCog):
     self,
     interaction: discord.Interaction,
     question: str,
-    auto_close_in: Optional[app_commands.Choice[int]] = None,
+    auto_close_in: app_commands.Choice[int] | None = None,
   ):
     auto_close_in = None if auto_close_in is None else auto_close_in.value
     # create the embed
-    embed = build_poll_embed(question, ['Yes', 'No'], interaction.user, interaction.user.display_avatar,
-                             False, auto_close_in)
+    embed = self.__embed_builder.build_poll_embed(question, ['Yes', 'No'], interaction.user,
+                                                  interaction.user.display_avatar, False, auto_close_in)
     # create a view with the buttons
-    view = YN_Poll_View(interaction, embed, question, auto_close_in)
+    view = YN_Poll_View(self.__dispatcher, self.__embed_builder, interaction, embed, question, auto_close_in)
     # send the message
-    await send_poll_embed(interaction, embed, view)
+    await self.__dispatcher.send_poll_embed(interaction, embed, view)
