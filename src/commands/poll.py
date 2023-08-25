@@ -24,13 +24,13 @@ class Pool_View(CustomView):
     auto_close_in: int = None,
   ):
     super().__init__(orig_inter=orig_inter, timeout=auto_close_in)
-    self.dispatcher: MessageSender = dispatcher # pylint: disable=unused-private-member
+    self.dispatcher: MessageSender = dispatcher
     self.embed_builder: Embedder = embed_builder
     self.embed = embed
     self.question = question
     self.choices = choices
     self.allow_multiple = allow_multiple
-    self.user_choices: dict[int, set[int]] = {}   # user_id: choice_id
+    self.user_choices: dict[int, set[int]] = {} # user_id: choice_id
     self.results = [0 for _ in range(len(choices))]
 
     for i, choice in enumerate(choices):
@@ -142,11 +142,11 @@ class MC_Poll_View(Pool_View):
         self.results[i] += 1
         u_choices.add(i)
         embed = self.embed_builder.build_poll_followup_embed(NUMERIC_EMOJIS[i], choice, False,
-                                                               prev_choice_emote, prev_choice_str)
+                                                             prev_choice_emote, prev_choice_str)
         await self.dispatcher.send_poll_followup_embed(interaction, embed)
 
       t, d = self.embed_builder.build_description_line_for_poll_embed(i, choice, self.results[i],
-                                                                        sum(self.results))
+                                                                      sum(self.results))
       self.embed.set_field_at(i, name=t, value=d, inline=False)
       self.edit_button(f'choice_{i}', emoji=NUMERIC_EMOJIS[i], label=f'{self.results[i]}')
       if prev_choice is not None:
@@ -154,9 +154,9 @@ class MC_Poll_View(Pool_View):
                          emoji=NUMERIC_EMOJIS[prev_choice],
                          label=f'{self.results[prev_choice]}')
         t, d = self.embed_builder.build_description_line_for_poll_embed(prev_choice,
-                                                                          self.choices[prev_choice],
-                                                                          self.results[prev_choice],
-                                                                          sum(self.results))
+                                                                        self.choices[prev_choice],
+                                                                        self.results[prev_choice],
+                                                                        sum(self.results))
         self.embed.set_field_at(prev_choice, name=t, value=d, inline=False)
       await self.interaction.edit_original_response(embed=self.embed, view=self)
 
@@ -214,11 +214,11 @@ class YN_Poll_View(Pool_View):
         u_choices.clear()
         u_choices.add(i)
         embed = self.embed_builder.build_poll_followup_embed(YESNO_EMOJIS[i], choice, False,
-                                                               prev_choice_emote, prev_choice_str)
+                                                             prev_choice_emote, prev_choice_str)
         await self.dispatcher.send_poll_followup_embed(interaction, embed)
 
-      t, d = self.embed_builder.build_description_line_for_yesno_poll_embed(
-        i, self.results[i], sum(self.results))
+      t, d = self.embed_builder.build_description_line_for_yesno_poll_embed(i, self.results[i],
+                                                                            sum(self.results))
       self.embed.set_field_at(i, name=t, value=d, inline=False)
       self.edit_button(f'choice_{i}', emoji=YESNO_EMOJIS[i], label=f'{self.results[i]}')
       if prev_choice is not None:
@@ -328,8 +328,8 @@ class Poll(UsefullCog):
     auto_close_in = None if auto_close_in is None else auto_close_in.value
     # create the embed
     embed = self.embed_builder.build_poll_embed(question, choices, interaction.user,
-                                                  interaction.user.display_avatar, allow_multiple,
-                                                  auto_close_in)
+                                                interaction.user.display_avatar, allow_multiple,
+                                                auto_close_in)
     # create a view with the buttons
     view = MC_Poll_View(self.dispatcher, self.embed_builder, interaction, embed, question, choices,
                         allow_multiple, auto_close_in)
@@ -362,7 +362,7 @@ class Poll(UsefullCog):
     auto_close_in = None if auto_close_in is None else auto_close_in.value
     # create the embed
     embed = self.embed_builder.build_poll_embed(question, ['Yes', 'No'], interaction.user,
-                                                  interaction.user.display_avatar, False, auto_close_in)
+                                                interaction.user.display_avatar, False, auto_close_in)
     # create a view with the buttons
     view = YN_Poll_View(self.dispatcher, self.embed_builder, interaction, embed, question, auto_close_in)
     # send the message

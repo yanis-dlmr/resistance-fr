@@ -5,7 +5,6 @@ from discord import app_commands
 
 from ..helper import *
 
-
 __all__ = ['Sudo']
 
 
@@ -126,8 +125,7 @@ class Sudo(UsefullCog):
     reason='Reason for the kick (optional)',
   )
   async def kick(self, interaction: discord.Interaction, user: discord.Member, reason: str | None = None):
-    embed = self.embed_builder.build_success_embed(
-      title=f'{SUCCESS_EMOJI} user `{user}` has been kicked !',)
+    embed = self.embed_builder.build_success_embed(title=f'{SUCCESS_EMOJI} user `{user}` has been kicked !',)
     await user.kick(reason=reason)
     await self.dispatcher.reply_with_status_embed(interaction, embed)
     self.log_interaction(interaction)
@@ -143,8 +141,7 @@ class Sudo(UsefullCog):
                 user: discord.Member,
                 reason: str | None = None,
                 del_msgs: bool = False):
-    embed = self.embed_builder.build_success_embed(
-      title=f'{SUCCESS_EMOJI} user `{user}` has been banned !',)
+    embed = self.embed_builder.build_success_embed(title=f'{SUCCESS_EMOJI} user `{user}` has been banned !',)
     await user.ban(reason=reason, delete_message_days=7 if del_msgs else 0)
     await self.dispatcher.reply_with_status_embed(interaction, embed)
     self.log_interaction(interaction)

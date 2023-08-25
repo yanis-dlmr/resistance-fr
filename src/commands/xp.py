@@ -124,8 +124,7 @@ class Xp(UsefullCog):
     failed = False
     embed = self.embed_builder.build_info_embed(
       title=f'Your XP in {interaction.guild.name}',
-      description=f'{interaction.user.display_name} ({user.mention}) : {xp} XP ({self.client.xp_to_lvl(xp)})'
-    )
+      description=f'{interaction.user.display_name} ({user.mention}) : {xp} XP ({self.client.xp_to_lvl(xp)})')
     if xp < 0:
       failed = True
       embed = self.embed_builder.build_error_embed(
@@ -142,8 +141,7 @@ class Xp(UsefullCog):
     xp = self.__db.get_user_xp(user.id)
     embed = self.embed_builder.build_info_embed(
       title=f'XP of {user.display_name} in {interaction.guild.name}',
-      description=
-      f'{user.display_name} ({user.mention}) : {xp} XP ({self.client.xp_to_lvl(xp)})',
+      description=f'{user.display_name} ({user.mention}) : {xp} XP ({self.client.xp_to_lvl(xp)})',
     )
     if xp < 0:
       embed = self.embed_builder.build_error_embed(
