@@ -41,6 +41,9 @@ if sys.version_info < (3, 10):
 
 if __name__ == '__main__':
   import os
+  from dotenv import load_dotenv
+  load_dotenv()
+
   from src import UsefulClient
 
   BOT_TOKEN = os.getenv('BOT_TOKEN')
