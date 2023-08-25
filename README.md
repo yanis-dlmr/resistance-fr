@@ -201,6 +201,7 @@ Please read the [changelog](changelog.md) file for the full history !
 - `poll`s are now working 🎉 !
 - added global app commands error handler
 - dispatcher and embed_builder are now in their own classes
+- logger is now globally setup and each class creates its own logger
 
 </details>
 
