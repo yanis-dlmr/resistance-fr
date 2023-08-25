@@ -3,7 +3,6 @@ import logging
 import discord
 from discord.ext import commands
 
-from ..helper import *
 from ..messages import MessageSender, Embedder
 
 __all__ = ['UsefullCog']
@@ -20,7 +19,7 @@ class UsefullCog(commands.GroupCog):
 
   @commands.Cog.listener()
   async def on_ready(self):
-    self.log.info(f'{self.__class__.__name__} cog loaded !')
+    self.log.info('%s cog loaded !', self.__class__.__name__)
 
   def log_interaction(self, interaction: discord.Interaction):
     self.log.debug('[%s] %s#%s - %s(%s)', interaction.guild.name, interaction.user.name,
