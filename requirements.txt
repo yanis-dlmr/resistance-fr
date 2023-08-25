@@ -8,6 +8,7 @@ python-dotenv     == 1.0.*  # load environment variables from a .env file (or ex
 typing_extensions == 4.6.*  # mainly for `override` decorator in python < 3.12
 arrow             == 1.2.*  # for time manipulation
 jellyfish         == 0.11.* # for fuzzy string matching
+pyjson5           == 1.6.*  # fast parsing for JSON like files
 
 discord.py        == 2.2.*  # discord API wrapper
 pymongo[srv]      == 4.3.*  # MongoDB driver
