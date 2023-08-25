@@ -1,12 +1,11 @@
 import os
 
+import logging
 from collections.abc import Generator
 from dataclasses import dataclass
 
 from pymongo import MongoClient
 from pymongo.collection import Collection
-
-from ..helper.logger import logger as log
 
 __all__ = ['UsefulDatabase', 'ExportUserEntry']
 
@@ -36,6 +35,7 @@ class UsefulDatabase:
 
   def __init__(self):
     self.__client: MongoClient = None
+    self.log = logging.getLogger('resistance.db')
 
   @property
   def client(self) -> MongoClient:
@@ -54,33 +54,33 @@ class UsefulDatabase:
     ...
 
   def connect(self) -> bool:
-    log.debug('Connecting to database...')
+    self.log.debug('Connecting to database...')
     r = False
     if DB_USER != '' and DB_PASSWD != '':
       try:
         self.__client = MongoClient(CONNECTION_STRING, port=int(DB_PORT) if DB_PORT else None)
-        log.debug('Connected to database')
+        self.log.debug('Connected to database')
         r = True
       except Exception as e: # pylint: disable=broad-except
-        log.error('Could not connect to database: %s', e)
+        self.log.error('Could not connect to database: %s', e)
     else:
-      log.warning('No database credentials provided, skipping connection')
+      self.log.warning('No database credentials provided, skipping connection')
     return r
 
   def disconnect(self) -> bool:
-    log.debug('Disconnecting from database...')
+    self.log.debug('Disconnecting from database...')
     r = False
     if self.__client is not None:
       self.__client.close()
       self.__client = None
-      log.debug('Disconnected from database')
+      self.log.debug('Disconnected from database')
       r = True
     else:
-      log.warning('No database connection to close')
+      self.log.warning('No database connection to close')
     return r
 
   def test(self):
-    log.info('Testing database connection...')
+    self.log.info('Testing database connection...')
     try:
       if self.connect():
         r = self.tests_collection.insert_one({'test': 'test'})
@@ -88,9 +88,9 @@ class UsefulDatabase:
         r = self.tests_collection.delete_one({'test': 'test'})
         assert r.acknowledged and r.deleted_count == 1
         self.disconnect()
-      log.info('Test successful')
+      self.log.info('Test successful')
     except Exception as e: # pylint: disable=broad-except
-      log.error('Test failed: %s', e)
+      self.log.error('Test failed: %s', e)
 
   def __enter__(self) -> 'UsefulDatabase':
     self.connect()
