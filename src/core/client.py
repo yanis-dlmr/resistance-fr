@@ -7,6 +7,8 @@ import datetime
 import math
 from functools import lru_cache
 
+from threading import Thread
+
 from typing import Any
 from typing_extensions import override
 
@@ -20,6 +22,7 @@ from ..helper.logger import init_logger
 from ..messages import MessageSender, Embedder
 from ..commands import *
 from ..db import *
+from ..events import TaskManager
 
 from ..version import __version__
 
@@ -67,6 +70,10 @@ class UsefulClient(commands.AutoShardedBot):
     self.__embed_builder: Embedder = Embedder()
 
     self.log = logging.getLogger('resistance.client')
+    
+    self.__task_manager = TaskManager(self)
+    
+    Thread(target=self.__task_manager.run, daemon=True, args=()).start() # !fixme, arguments and position maybe D:
 
   @property
   def invite(self) -> str:

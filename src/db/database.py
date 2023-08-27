@@ -152,3 +152,11 @@ class UsefulDatabase:
         id=entry['id_user'],
         xp=entry['XP'],
       )
+
+  def get_config(self) -> dict:
+    """Returns the config"""
+    ...
+    
+  def get_events(self) -> dict:
+    """Load and returns the events"""
+    ...
