@@ -70,10 +70,6 @@ class UsefulClient(commands.AutoShardedBot):
     self.__embed_builder: Embedder = Embedder()
 
     self.log = logging.getLogger('resistance.client')
-    
-    self.__task_manager = TaskManager(self)
-    
-    Thread(target=self.__task_manager.run, daemon=True, args=()).start() # !fixme, arguments and position maybe D:
 
   @property
   def invite(self) -> str:
@@ -121,6 +117,10 @@ class UsefulClient(commands.AutoShardedBot):
     signal.signal(signal.SIGTERM, self.on_end)
 
     self.log.info('Ready to connect 🥳 !')
+    
+    self.__task_manager = TaskManager(self) # !fixme, arguments D:
+    
+    Thread(target=self.__task_manager.run, daemon=True, args=()).start() 
 
   @override
   def run(self, token: str) -> None:
