@@ -102,6 +102,14 @@ class Embedder:
       thumbnail=INVITE_IMG,
     )
 
+  def build_event_embed(self, **kwargs) -> discord.Embed:
+    c: int | str = kwargs.get('color', discord.Colour.gold().value)
+    if isinstance(c, str):
+      c = discord.Colour.from_str(c).value
+    kwargs['color'] = c
+
+    return discord.Embed.from_dict(kwargs)
+
   def build_description_line_for_poll_embed(self, i: int, choice: str, votes: int,
                                             total_votes: int) -> tuple[str, str]:
     width = 10

@@ -7,8 +7,6 @@ import datetime
 import math
 from functools import lru_cache
 
-from threading import Thread
-
 from typing import Any
 from typing_extensions import override
 
@@ -61,6 +59,7 @@ class UsefulClient(commands.AutoShardedBot):
   def __init__(self, prefix: str = '!', invite: str = None, **options):
     init_logger()
     intents = discord.Intents.all()
+    self.__started_once = False
     self.__invite = invite
     self.__start_time = datetime.datetime.now()
     super().__init__(command_prefix=prefix, intents=intents, **options)
@@ -101,8 +100,16 @@ class UsefulClient(commands.AutoShardedBot):
         name=f'/help (v{__version__})',
       ),
     )
-    self.log.info('Logged in as %s (ID: %d)', self.user, self.user.id)
-    self.log.info('Connected to %d guilds', len(self.guilds))
+
+    if not self.__started_once:
+      TaskManager(self, self.__db, self.dispatcher, self.embed_builder).run.start() # pylint: disable=no-member
+      self.log.info('Logged in as %s (ID: %d)', self.user, self.user.id)
+      self.log.info('Connected to %d guilds', len(self.guilds))
+
+      self.__started_once = True
+
+    else:
+      self.log.info('Skipping dupplicate on_ready event')
 
   @override
   async def setup_hook(self):
@@ -117,10 +124,6 @@ class UsefulClient(commands.AutoShardedBot):
     signal.signal(signal.SIGTERM, self.on_end)
 
     self.log.info('Ready to connect 🥳 !')
-    
-    self.__task_manager = TaskManager(self) # !fixme, arguments D:
-    
-    Thread(target=self.__task_manager.run, daemon=True, args=()).start() 
 
   @override
   def run(self, token: str) -> None:
@@ -244,6 +247,7 @@ class UsefulClient(commands.AutoShardedBot):
     await self.process_msg(message)
 
   async def process_msg(self, message: Message):
+    self.__db.create_user(message.author.id, message.author.name)
     old_xp = self.__db.add_xp_to_user(message.author.id, xp_added := self.xp_from_message(message))
     new_xp = old_xp + xp_added
     old_lvl, new_lvl = self.xp_to_lvl(old_xp), self.xp_to_lvl(new_xp) # pylint: disable=unused-variable

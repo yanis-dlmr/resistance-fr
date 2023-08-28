@@ -253,6 +253,9 @@ class MessageSender:
 
   def send_channel_file(self, channel: discord.TextChannel, file: discord.File) -> Coroutine[Any, Any, None]:
     return channel.send(file=file)
-  
-  def send_channel_embed(self, channel: discord.TextChannel, embed: discord.Embed) -> Coroutine[Any, Any, None]:
-    return channel.send(embed=embed)
+
+  def send_channel_event(self,
+                         channel: discord.TextChannel,
+                         embed: discord.Embed,
+                         content: str = None) -> Coroutine[Any, Any, None]:
+    return channel.send(content=content or '', embed=embed)

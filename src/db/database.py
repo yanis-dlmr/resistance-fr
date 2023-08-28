@@ -3,6 +3,7 @@ import os
 import logging
 from collections.abc import Generator
 from dataclasses import dataclass
+from typing import Any
 
 from pymongo import MongoClient
 from pymongo.collection import Collection
@@ -51,7 +52,11 @@ class UsefulDatabase:
 
   @property
   def tasks_collection(self) -> Collection:
-    ...
+    return self.client.Resistance.Tasks
+
+  @property
+  def config_collection(self) -> Collection:
+    return self.client.Resistance.Config
 
   def connect(self) -> bool:
     self.log.debug('Connecting to database...')
@@ -153,10 +158,12 @@ class UsefulDatabase:
         xp=entry['XP'],
       )
 
-  def get_config(self) -> dict:
+  def get_config(self) -> Generator[dict[str, Any], None, None]:
     """Returns the config"""
-    ...
-    
-  def get_events(self) -> dict:
+    for config in self.config_collection.find():
+      yield config
+
+  def get_events(self) -> Generator[dict[str, Any], None, None]:
     """Load and returns the events"""
-    ...
+    for task in self.tasks_collection.find():
+      yield task
