@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 import discord
 from discord import app_commands
@@ -6,8 +6,7 @@ from discord.ext import commands
 
 from ..db import *
 from ..helper import *
-from ..helper.logger import logger as log
-from ..messages import *
+from ..messages import CustomView
 
 __all__ = ['Xp']
 
@@ -33,7 +32,7 @@ class LeaderBoardView(CustomView):
     self.items: dict[int, str] = {}
 
     self.__tmp_records: list[ExportUserEntry] = None
-    self.__client = client
+    self.client = client
     self.__db = db
     self.__page = 0
 
@@ -51,8 +50,7 @@ class LeaderBoardView(CustomView):
     return page % self.n_pages
 
   def __setup(self) -> None:
-    self.__tmp_records = list(self.__db.users())
-    self.__tmp_records.sort(key=lambda e: e.xp, reverse=True)
+    self.__tmp_records = sorted(self.__db.users(), key=lambda e: e.xp, reverse=True)
 
     building_page = 0
     current_page = ''
@@ -63,7 +61,7 @@ class LeaderBoardView(CustomView):
       if user is None or xp < 0:
         continue
       i += 1
-      line = f'{i}. `{user.display_name}` ({user.mention}) {xp} XP ({self.__client.xp_to_lvl(xp)})\n'
+      line = f'{i}. `{user.display_name}` ({user.mention}) {xp} XP ({self.client.xp_to_lvl(xp)})\n'
       current_page += line
 
       if i % self.items_per_page == 0:
@@ -77,29 +75,26 @@ class LeaderBoardView(CustomView):
   def __on_page_change(self, page: int) -> Callable[[discord.Interaction], None]:
 
     async def callback(interaction: discord.Interaction) -> None:
-      await interaction.response.defer()
       self.__page = self.wrap_page_no(self.__page + page)
 
       self.embed.description = self.items[self.__page]
       self.embed.set_footer(text=f'Page {self.__page + 1}/{self.n_pages}')
+
       await self.interaction.edit_original_response(embed=self.embed, view=self)
+      await interaction.response.defer()
 
     return callback
 
 
-class Xp(commands.GroupCog):
+class Xp(UsefullCog):
 
   def __init__(self, client: commands.AutoShardedBot, db: UsefulDatabase):
-    self.__client = client
     self.__db = db
-
-  @commands.Cog.listener()
-  async def on_ready(self):
-    log.info('Xp cog loaded !')
+    super().__init__(client)
 
   @app_commands.command(name='help', description='Get help about a command')
   async def help(self, interaction: discord.Interaction):
-    embed = build_help_embed(
+    embed = self.embed_builder.build_help_embed(
       title='Help for `Xp` group',
       description='`Xp` group contains commands that allow you to get insight about your XP in the server.',
     ).add_field(
@@ -119,61 +114,65 @@ class Xp(commands.GroupCog):
       value='Alias to top 3 of `leaderboard`.',
       inline=False,
     )
-    await reply_with_embed(interaction, embed)
+    await self.dispatcher.reply_with_embed(interaction, embed)
+    self.log_interaction(interaction)
 
   @app_commands.command(name='me', description='Get your XP in the server 🕵️')
   async def me(self, interaction: discord.Interaction):
     user = interaction.user
     xp = self.__db.get_user_xp(user.id)
     failed = False
-    embed = build_info_embed(
+    embed = self.embed_builder.build_info_embed(
       title=f'Your XP in {interaction.guild.name}',
-      description=f'{interaction.user.display_name} ({user.mention}) : {xp} XP ({self.__client.xp_to_lvl(xp)})'
-    )
+      description=f'{interaction.user.display_name} ({user.mention}) : {xp} XP ({self.client.xp_to_lvl(xp)})')
     if xp < 0:
       failed = True
-      embed = build_error_embed(
+      embed = self.embed_builder.build_error_embed(
         title=f'You do not have any XP in {interaction.guild.name}',
         description='Please let an admin know about this issue.',
       )
-    await reply_with_status_embed(interaction, embed, failed=failed)
+    await self.dispatcher.reply_with_status_embed(interaction, embed, failed=failed)
+    self.log_interaction(interaction)
 
   @app_commands.command(name='user', description='Get the XP of a user in the server 👤')
-  async def user(self, interaction: discord.Interaction, user: discord.Member):
+  async def user(self, interaction: discord.Interaction, user: discord.Member | None = None):
+    if not user:
+      user = interaction.user
     xp = self.__db.get_user_xp(user.id)
-    embed = build_info_embed(
+    embed = self.embed_builder.build_info_embed(
       title=f'XP of {user.display_name} in {interaction.guild.name}',
-      description=
-      f'{interaction.user.display_name} ({user.mention}) : {xp} XP ({self.__client.xp_to_lvl(xp)})',
+      description=f'{user.display_name} ({user.mention}) : {xp} XP ({self.client.xp_to_lvl(xp)})',
     )
     if xp < 0:
-      embed = build_error_embed(
+      embed = self.embed_builder.build_error_embed(
         title=f'{user.display_name} does not have any XP in {interaction.guild.name}',
         description='Please let an admin know about this issue.',
       )
-    await reply_with_embed(interaction, embed)
+    await self.dispatcher.reply_with_embed(interaction, embed)
+    self.log_interaction(interaction)
 
   @app_commands.command(name='leaderboard', description='Get the XP leaderboard of the server 📊')
   async def leaderboard(self, interaction: discord.Interaction):
     embed: discord.Embed = None
     view: LeaderBoardView = None
 
-    embed = build_info_embed(
+    embed = self.embed_builder.build_info_embed(
       title=f'📊 Leaderboard of {interaction.guild.name}',
       description='...loading...',
     )
-    view = LeaderBoardView(interaction, embed, self.__client, self.__db)
-    await send_xp_embed(interaction, embed, view)
+    view = LeaderBoardView(interaction, embed, self.client, self.__db)
+    await self.dispatcher.send_xp_embed(interaction, embed, view)
 
     first_page = view.first_page
     embed.description = first_page
     embed.set_footer(text=f'Page 1/{view.n_pages}')
     await interaction.edit_original_response(embed=embed, view=view)
+    self.log_interaction(interaction)
 
   @app_commands.command(name='no_life', description='Alias to top 3 of `leaderboard` 📊')
   async def no_life(self, interaction: discord.Interaction):
     embed: discord.Embed = None
-    embed = build_info_embed(
+    embed = self.embed_builder.build_info_embed(
       title=f'Top 3 of {interaction.guild.name}',
       description=':flag_fr: les pires no-lifes du serveur :flag_fr:',
     )
@@ -184,8 +183,9 @@ class Xp(commands.GroupCog):
       embed.add_field(
         name='',
         value=
-        f'{TROPHY_EMOJIS[i]} `{user.display_name}` ({user.mention}) {xp} XP ({self.__client.xp_to_lvl(xp)})',
+        f'{TROPHY_EMOJIS[i]} `{user.display_name}` ({user.mention}) {xp} XP ({self.client.xp_to_lvl(xp)})',
         inline=False,
       )
 
-    await reply_with_embed(interaction, embed)
+    await self.dispatcher.reply_with_embed(interaction, embed)
+    self.log_interaction(interaction)

@@ -11,3 +11,9 @@
 - added all legal and github related stuff
 - `poll`s are now working 🎉 !
 - added global app commands error handler
+- dispatcher and embed_builder are now in their own classes
+- logger is now globally setup and each class creates its own logger
+
+**v0.2** events and cie.
+
+- events are loaded and the config is reloaded on each valid event

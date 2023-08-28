@@ -1,28 +1,16 @@
-from typing import Optional
-
 import discord
 from discord import app_commands
-from discord.ext import commands
 
 from ..helper import *
-from ..helper.logger import logger as log
-from ..messages import *
 
 __all__ = ['Utils']
 
 
-class Utils(commands.GroupCog):
-
-  def __init__(self, client: commands.AutoShardedBot):
-    self.__client = client
-
-  @commands.Cog.listener()
-  async def on_ready(self):
-    log.info('Utils cog loaded !')
+class Utils(UsefullCog):
 
   @app_commands.command(name='help', description='Get help about a command')
   async def help(self, interaction: discord.Interaction):
-    embed = build_help_embed(
+    embed = self.embed_builder.build_help_embed(
       title='Help for `Utils` group',
       description='`Utils` group contains commands that are useful for developers and users.',
     ).add_field(
@@ -39,42 +27,46 @@ class Utils(commands.GroupCog):
       value='Get the bot\'s uptime (time since the last restart).',
       inline=False,
     )
-    await reply_with_embed(interaction, embed)
+    await self.dispatcher.reply_with_embed(interaction, embed)
+    self.log_interaction(interaction)
 
   @app_commands.command(name='ping', description='Test my ping to Discord\'s endpoint 🏓')
   async def ping(self, interaction: discord.Interaction):
-    embed = build_response_embed(title='Pong! `...ms` 🏓',)
-    await reply_with_embed(interaction, embed)
-    ping_ = f'{round(self.__client.latency * 1000)}ms'
+    embed = self.embed_builder.build_response_embed(title='Pong! `...ms` 🏓',)
+    await self.dispatcher.reply_with_embed(interaction, embed)
+    ping_ = f'{round(self.client.latency * 1000)}ms'
     embed.title = f'Pong! `{ping_}` 🏓'
-    await edit_reply_with_embed(interaction, embed)
+    await self.dispatcher.edit_reply_with_embed(interaction, embed)
+    self.log_interaction(interaction)
 
   @app_commands.command(name='invite', description='Get the bot\'s invite link 🔗')
   @app_commands.choices(perms=[
     app_commands.Choice(name='Admin', value='admin'),
     app_commands.Choice(name='Basic', value='basic')
   ])
-  async def invite(self, interaction: discord.Interaction, perms: Optional[app_commands.Choice[str]] = None):
+  async def invite(self, interaction: discord.Interaction, perms: app_commands.Choice[str] | None = None):
     permissions: dict[str, int] = {
       'admin': 8,
       'basic': 277025705024,
     }
-    if perms is None:
+    if not perms:
       perms = app_commands.Choice(name='Admin', value='admin')
 
-    embed = build_invite_embed(
+    embed = self.embed_builder.build_invite_embed(
       title='Invite Link',
       description=f'Click the link below to invite me to your server!\n\n'
-      f'[🔗 Invite me !]({self.__client.invite}{permissions[perms.value]})',
+      f'[🔗 Invite me !]({self.client.invite}{permissions[perms.value]})',
     )
     # this one link exists... I swear
-    await reply_with_embed(interaction, embed)
+    await self.dispatcher.reply_with_embed(interaction, embed)
+    self.log_interaction(interaction)
 
   @app_commands.command(name='uptime', description='Get the bot\'s uptime ⏱️')
   async def uptime(self, interaction: discord.Interaction):
-    embed = build_response_embed(title='Uptime: `.:..:..` ⏱️',)
-    await reply_with_embed(interaction, embed)
+    embed = self.embed_builder.build_response_embed(title='Uptime: `.:..:..` ⏱️',)
+    await self.dispatcher.reply_with_embed(interaction, embed)
     # I swear there is somewhere a `uptime` property in the client
-    uptime_: str = self.__client.uptime
+    uptime_: str = self.client.uptime
     embed.title = f'Uptime: `{uptime_}` ⏱️'
-    await edit_reply_with_embed(interaction, embed)
+    await self.dispatcher.edit_reply_with_embed(interaction, embed)
+    self.log_interaction(interaction)

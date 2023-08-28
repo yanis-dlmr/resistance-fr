@@ -1,99 +1,52 @@
 import signal
 import sys
+import os
 
 import logging
 import datetime
 import math
-from threading import Timer
 from functools import lru_cache
 
-from collections.abc import Callable
 from typing import Any
 from typing_extensions import override
 
+from pyjson5 import decode_io, encode_io # pylint: disable=no-name-in-module
 import discord
 from discord.ext import commands
 from discord.message import Message
 
 from ..helper import *
-from ..helper import logger
-from ..helper.logger import logger as log
-from ..messages import *
+from ..helper.logger import init_logger
+from ..messages import MessageSender, Embedder
 from ..commands import *
 from ..db import *
+from ..events import TaskManager
 
 from ..version import __version__
 
 __all__ = ['UsefulClient']
 
 
-class RepeatedTimer:
-  """"
-  A timer that repeats itself.
+class ChannelToLastMessageInfo:
+  file_path = 'data/last_message.json5'
+  lmi = dict[str, int | float]
 
-  ## Example
-  ```py
-  from time import sleep
+  def __init__(self) -> None:
+    os.makedirs('data', exist_ok=True)
+    self.data: dict[int, self.lmi] = {}
 
-  def hello(name: str):
-    print(f"Hello, {name}!")
+    self.__load()
 
-  print "starting..."
-  rt = RepeatedTimer(1, hello, "World") # it auto-starts, no need of rt.start()
-  try:
-    sleep(5) # your long-running job goes here...
-  finally:
-    rt.stop() # better in a try/finally block to make sure the program ends!
-  ```
-  """
+  def __load(self) -> None:
+    try:
+      with open(self.file_path, 'r', encoding='utf-8') as f:
+        self.data = decode_io(f)
+    except FileNotFoundError:
+      pass
 
-  def __init__(
-    self,
-    interval: float,
-    function: Callable,
-    *args: Any,
-    **kwargs: Any,
-  ) -> None:
-    """
-    New RepeatedTimer.
-
-    ## Parameters
-    ```py
-    >>> interval: float
-    ```
-    The interval in seconds between each call of the function.
-    ```py
-    >>> function: Callable
-    ```
-    The function to call.
-    ```py
-    >>> *args: Any, **kwargs: Any
-    ```
-    The arguments to pass to the function.
-    """
-    self.__timer = None
-    self.interval = interval
-    self.function = function
-    self.args = args
-    self.kwargs = kwargs
-    self.is_running = False
-    self.start()
-
-  def _run(self):
-    self.is_running = False
-    self.start()
-    self.function(*self.args, **self.kwargs)
-
-  def start(self):
-    if not self.is_running:
-      self.__timer = Timer(self.interval, self._run)
-      self.__timer.start()
-      self.is_running = True
-
-  def stop(self):
-    if self.is_running:
-      self.__timer.cancel()
-      self.is_running = False
+  def __save(self) -> None: # pylint: disable=unused-private-member
+    with open(self.file_path, 'w', encoding='utf-8') as f:
+      encode_io(self.data, f)
 
 
 class UsefulClient(commands.AutoShardedBot):
@@ -104,12 +57,18 @@ class UsefulClient(commands.AutoShardedBot):
   MAX_LVL = 100
 
   def __init__(self, prefix: str = '!', invite: str = None, **options):
+    init_logger()
     intents = discord.Intents.all()
+    self.__started_once = False
     self.__invite = invite
     self.__start_time = datetime.datetime.now()
     super().__init__(command_prefix=prefix, intents=intents, **options)
 
     self.__db = UsefulDatabase()
+    self.__dispatcher: MessageSender = MessageSender()
+    self.__embed_builder: Embedder = Embedder()
+
+    self.log = logging.getLogger('resistance.client')
 
   @property
   def invite(self) -> str:
@@ -123,6 +82,14 @@ class UsefulClient(commands.AutoShardedBot):
   def start_time(self) -> float:
     return self.__start_time.timestamp()
 
+  @property
+  def dispatcher(self) -> MessageSender:
+    return self.__dispatcher
+
+  @property
+  def embed_builder(self) -> Embedder:
+    return self.__embed_builder
+
   @override
   async def on_ready(self):
     await self.tree.sync()
@@ -133,14 +100,22 @@ class UsefulClient(commands.AutoShardedBot):
         name=f'/help (v{__version__})',
       ),
     )
-    log.info('Logged in as %s (ID: %d)', self.user, self.user.id)
-    log.info('Connected to %d guilds', len(self.guilds))
+
+    if not self.__started_once:
+      TaskManager(self, self.__db, self.dispatcher, self.embed_builder).run.start() # pylint: disable=no-member
+      self.log.info('Logged in as %s (ID: %d)', self.user, self.user.id)
+      self.log.info('Connected to %d guilds', len(self.guilds))
+
+      self.__started_once = True
+
+    else:
+      self.log.info('Skipping dupplicate on_ready event')
 
   @override
   async def setup_hook(self):
     await self.setup()
 
-    log.info('Messing around ...')
+    self.log.info('Messing around ...')
 
     self.__db.test()
     self.__db.connect()
@@ -148,7 +123,7 @@ class UsefulClient(commands.AutoShardedBot):
     signal.signal(signal.SIGINT, self.on_end)
     signal.signal(signal.SIGTERM, self.on_end)
 
-    log.info('Ready to connect 🥳 !')
+    self.log.info('Ready to connect 🥳 !')
 
   @override
   def run(self, token: str) -> None:
@@ -164,36 +139,36 @@ class UsefulClient(commands.AutoShardedBot):
     super().run(
       token,
       reconnect=True,
-      log_formatter=logger.default_formatter,
-      log_level=logging.INFO,                 # discord.py is too noisy
+      log_level=logging.INFO, # discord.py is too noisy
     )
 
-  @commands.before_invoke
   async def log_before_invoke(self, ctx: commands.Context, /): # !fixme
-    log.debug('Command %s invoked by %s in %s', ctx.command, ctx.author, ctx.channel)
+    self.log.debug('[%s] %s invoked %s', ctx.guild, ctx.author, ctx.command)
 
-  @staticmethod
-  async def on_app_command_error(interaction: discord.Interaction, error: Exception):
+  async def on_app_command_error(self, interaction: discord.Interaction, error: Exception):
     """ Handles errors from slash commands. """
-    if isinstance(error, commands.MissingRequiredArgument):
-      embed = build_error_embed(
-        title='Missing argument !',
-        description=f'{FAIL_EMOJI} You need to specify the `{error.param.name}` argument.',
-      )
-      await reply_with_embed(interaction, embed)
-    elif isinstance(error, commands.BadArgument):
-      embed = build_error_embed(
-        title='Bad argument !',
-        description=f'{FAIL_EMOJI} You need to specify a valid `{error.param.name}` argument.',
-      )
-      await reply_with_embed(interaction, embed)
-    else:
-      embed = build_error_embed(
-        title='Oopsie, something went wrong !',
-        description=
-        f'{FAIL_EMOJI} Please let an admin know about this issue : \n```py\n{error.with_traceback(None)}\n```',
-      )
-      await reply_with_embed(interaction, embed)
+    embed: discord.Embed = None
+    match error:
+      case commands.MissingRequiredArgument:
+        embed = self.embed_builder.build_error_embed(
+          title='Missing argument !',
+          description=f'{FAIL_EMOJI} You need to specify the `{error.param.name}` argument.',
+        )
+      case commands.BadArgument:
+        embed = self.embed_builder.build_error_embed(
+          title='Bad argument !',
+          description=f'{FAIL_EMOJI} You need to specify a valid `{error.param.name}` argument.',
+        )
+      case _:
+        embed = self.embed_builder.build_error_embed(
+          title='Oopsie, something went wrong !',
+          description=
+          f'{FAIL_EMOJI} Please let an admin know about this issue : \n```py\n{error.with_traceback(None)}\n```',
+        )
+    if not embed:
+      self.log.critical('Panic while handling slash command unhandled exception !')
+      sys.exit(1)
+    await self.dispatcher.reply_with_embed(interaction, embed)
 
   def on_end(self, sig: int, _: Any) -> None:
     """
@@ -210,14 +185,14 @@ class UsefulClient(commands.AutoShardedBot):
     The frame object.
     """
     print('', end='\r')
-    log.warning('Received signal %s, shutting down...', signal.Signals(sig).name)
-    log.info('Shutting down...')
+    self.log.warning('Received signal %s, shutting down...', signal.Signals(sig).name)
+    self.log.info('Shutting down...')
     self.__db.disconnect()
-    log.info('Shutdown complete')
+    self.log.info('Shutdown complete')
     sys.exit(0)
 
   async def setup(self):
-    log.info('Setting up...')
+    self.log.info('Setting up...')
 
     await self.add_cog(Sudo(self))
     await self.add_cog(BotLog(self))
@@ -227,7 +202,7 @@ class UsefulClient(commands.AutoShardedBot):
     await self.add_cog(Utils(self))
     await self.add_cog(Xp(self, self.__db))
 
-    log.info('Setting up complete')
+    self.log.info('Setting up complete')
 
   @staticmethod
   @lru_cache(maxsize=None)
@@ -235,8 +210,7 @@ class UsefulClient(commands.AutoShardedBot):
     """Converts a level to xp."""
     return int(1.6412*lvl*lvl*lvl + 23.441*lvl*lvl + 67.981*lvl)
 
-  @staticmethod
-  def xp_to_lvl(xp: int) -> int:
+  def xp_to_lvl(self, xp: int) -> int:
     """Converts xp to a level."""
     if xp < 0:
       return 0
@@ -246,30 +220,38 @@ class UsefulClient(commands.AutoShardedBot):
     for i in range(1, UsefulClient.MAX_LVL):
       if UsefulClient.lvl_to_xp(i) <= xp < UsefulClient.lvl_to_xp(i + 1):
         return i
-    log.warning('Maximum level hit with %d xp', xp)
+    self.log.warning('Maximum level hit with %d xp', xp)
     return UsefulClient.MAX_LVL
 
   @staticmethod
   def xp_from_msg_len(msg_len: int) -> int:
     return round(math.log10(msg_len + 1) * 10)
 
-  @staticmethod
-  def xp_from_additionnal_attatchements(attachments: int) -> int:
-    return 5 * attachments
+  def xp_from_message(self, message: Message) -> int:
+    xp_to_add = UsefulClient.xp_from_msg_len(len(message.content)) +\
+                5 * len(message.attachments) +\
+                2 * len(message.stickers)
+    # todo: scale down based on how much the user spams
 
-  @staticmethod
-  def xp_from_message(message: Message) -> int:
-    return UsefulClient.xp_from_msg_len(len(message.content)) +\
-           UsefulClient.xp_from_additionnal_attatchements(len(message.attachments))
+    return xp_to_add
 
   @override
   async def on_message(self, message: Message, /):
+    if message.channel.type is discord.ChannelType.private:
+      return
+    return # todo: remove this line to enable xp and event dispatching
+
+    # pylint: disable=unreachable
     if message.author.bot:
       return await self.process_cmd(message)
     await self.process_msg(message)
 
-  async def process_msg(self, message: Message): # pylint: disable=unused-argument
-    ...
+  async def process_msg(self, message: Message):
+    self.__db.create_user(message.author.id, message.author.name)
+    old_xp = self.__db.add_xp_to_user(message.author.id, xp_added := self.xp_from_message(message))
+    new_xp = old_xp + xp_added
+    old_lvl, new_lvl = self.xp_to_lvl(old_xp), self.xp_to_lvl(new_xp) # pylint: disable=unused-variable
+                                                                      # todo: lvl up event
 
   async def process_cmd(self, message: Message): # pylint: disable=unused-argument
     ...

@@ -34,23 +34,22 @@
 #! You should have received a copy of the GNU Affero General Public License
 #! along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import sys
 
 if sys.version_info < (3, 10):
   raise RuntimeError('This program requires Python 3.10 or later.')
 
 if __name__ == '__main__':
-  import discord
+  import os
+  from dotenv import load_dotenv
+  load_dotenv()
+
   from src import UsefulClient
 
   BOT_TOKEN = os.getenv('BOT_TOKEN')
   BOT_PREFIX = os.getenv('BOT_PREFIX', '!')
   BOT_INVITE = os.getenv('BOT_INVITE')
   client = UsefulClient(BOT_PREFIX, BOT_INVITE, help_command=None)
-
-  @client.tree.error # dafuck we need to do to have an proper error handler
-  async def on_error(interaction: discord.Interaction, error: Exception):
-    return await client.on_app_command_error(interaction, error)
+  client.tree.error(client.on_app_command_error) # wtf
 
   client.run(BOT_TOKEN)
