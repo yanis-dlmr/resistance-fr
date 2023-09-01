@@ -59,12 +59,12 @@ class UsefulDatabase:
     return self.client.Resistance.Config
 
   def connect(self) -> bool:
-    self.log.debug('Connecting to database...')
+    self.log.info('Connecting to database...')
     r = False
     if DB_USER != '' and DB_PASSWD != '':
       try:
         self.__client = MongoClient(CONNECTION_STRING, port=int(DB_PORT) if DB_PORT else None)
-        self.log.debug('Connected to database')
+        self.log.info('Connected to database')
         r = True
       except Exception as e: # pylint: disable=broad-except
         self.log.error('Could not connect to database: %s', e)
@@ -73,12 +73,12 @@ class UsefulDatabase:
     return r
 
   def disconnect(self) -> bool:
-    self.log.debug('Disconnecting from database...')
+    self.log.info('Disconnecting from database...')
     r = False
     if self.__client is not None:
       self.__client.close()
       self.__client = None
-      self.log.debug('Disconnected from database')
+      self.log.info('Disconnected from database')
       r = True
     else:
       self.log.warning('No database connection to close')

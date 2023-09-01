@@ -136,14 +136,7 @@ class UsefulClient(commands.AutoShardedBot):
     ```
     The bot token.
     """
-    super().run(
-      token,
-      reconnect=True,
-      log_level=logging.INFO, # discord.py is too noisy
-    )
-
-  async def log_before_invoke(self, ctx: commands.Context, /): # !fixme
-    self.log.debug('[%s] %s invoked %s', ctx.guild, ctx.author, ctx.command)
+    super().run(token=token, log_handler=None)
 
   async def on_app_command_error(self, interaction: discord.Interaction, error: Exception):
     """ Handles errors from slash commands. """

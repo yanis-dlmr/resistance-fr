@@ -62,7 +62,7 @@ class TaskManager:
     """
     Check if the event is valid
     """
-    return self.__valid_state(event) and self.__valid_time(event)
+    return self.__valid_state(event) and self.__valid_time(event) and False # comment the last part to enable the task
 
   def __valid_state(self, event: dict[str, Any]) -> bool:
     """
@@ -97,7 +97,7 @@ class TaskManager:
     embed = self.__build_embed(event)
     content = f'<@&{self.__config["tag_id"][tag]["role_id"]}> {event["content"]}'
     await self.dispatcher.send_channel_event(channel, embed, content)
-    self.log.debug('Dispatched event \'%s\' to channel %s', tag, channel_id)
+    self.log.info('Dispatched event \'%s\' to channel %s', tag, channel_id)
 
   def __build_embed(self, event: dict[str, Any]) -> None:
     """

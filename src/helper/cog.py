@@ -22,5 +22,5 @@ class UsefullCog(commands.GroupCog):
     self.log.info('%s cog loaded !', self.__class__.__name__)
 
   def log_interaction(self, interaction: discord.Interaction):
-    self.log.debug('[%s] %s#%s - %s(%s)', interaction.guild.name, interaction.user.name,
+    self.log.info('[%s] %s#%s - %s(%s)', interaction.guild.name, interaction.user.name,
                    interaction.user.discriminator, interaction.command.name, self.__class__.__name__.lower())
