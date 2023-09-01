@@ -23,4 +23,4 @@ class UsefullCog(commands.GroupCog):
 
   def log_interaction(self, interaction: discord.Interaction):
     self.log.info('[%s] %s#%s - %s(%s)', interaction.guild.name, interaction.user.name,
-                   interaction.user.discriminator, interaction.command.name, self.__class__.__name__.lower())
+                  interaction.user.discriminator, interaction.command.name, self.__class__.__name__.lower())

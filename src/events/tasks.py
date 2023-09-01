@@ -62,7 +62,8 @@ class TaskManager:
     """
     Check if the event is valid
     """
-    return self.__valid_state(event) and self.__valid_time(event) and False # comment the last part to enable the task
+    # comment the last part to enable the task
+    return self.__valid_state(event) and self.__valid_time(event) and False
 
   def __valid_state(self, event: dict[str, Any]) -> bool:
     """
