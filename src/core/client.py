@@ -159,9 +159,16 @@ class UsefulClient(commands.AutoShardedBot):
           f'{FAIL_EMOJI} Please let an admin know about this issue : \n```py\n{error.with_traceback(None)}\n```',
         )
     if not embed:
-      self.log.critical('Panic while handling slash command unhandled exception !')
+      self.log.critical('Panic while handling slash command unhandled exception: embed is empty')
       sys.exit(1)
-    await self.dispatcher.reply_with_embed(interaction, embed)
+
+    try:
+      await self.dispatcher.reply_with_embed(interaction, embed)
+
+    except Exception as e: # pylint: disable=broad-except
+
+      self.log.critical('Panic while sending slash command unhandled exception: %s\n\n%s\n%s', e, embed.title,
+                        embed.description)
 
   def on_end(self, sig: int, _: Any) -> None:
     """
