@@ -44,7 +44,6 @@ BOT_INVITE = "https://discord.com/oauth2/authorize?client_id=1000490579291017337
 
 DB_USER = 
 DB_PASSWD = 
-DB_NAME = 
 DB_URL = 
 DB_PORT = 27017
 
@@ -217,8 +216,8 @@ Please read the [changelog](changelog.md) file for the full history !
 - [ ] polls, auto responses and reactions, ...
 - [ ] xp and level up mechanism
 - [ ] creates events for other bots
-- [ ] poll events from MongoDB
-- [ ] guide on how to setup MongoDB database for this bot
+- [x] poll events from MongoDB
+- [ ] guide on how to setup MongoDB database for this bot (@yanis-dlmr 🥲)
 - [ ] ...
 
 **Known Bugs** (latest fix)
