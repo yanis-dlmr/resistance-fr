@@ -11,6 +11,7 @@ __all__ = ['UsefullCog']
 class UsefullCog(commands.GroupCog):
 
   def __init__(self, client: commands.AutoShardedBot) -> None:
+    self.__loaded = False
     self.client = client
     self.dispatcher: MessageSender = client.dispatcher
     self.embed_builder: Embedder = client.embed_builder
@@ -19,6 +20,9 @@ class UsefullCog(commands.GroupCog):
 
   @commands.Cog.listener()
   async def on_ready(self):
+    if self.__loaded:
+      return
+    self.__loaded = True
     self.log.info('%s cog loaded !', self.__class__.__name__)
 
   def log_interaction(self, interaction: discord.Interaction):
