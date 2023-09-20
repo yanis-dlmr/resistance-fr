@@ -21,6 +21,7 @@ class UsefullCog(commands.GroupCog):
   @commands.Cog.listener()
   async def on_ready(self):
     if self.__loaded:
+      self.log.info('received event ... cog previously loaded')
       return
     self.__loaded = True
     self.log.info('%s cog loaded !', self.__class__.__name__)
