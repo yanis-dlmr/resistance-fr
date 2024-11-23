@@ -8,6 +8,8 @@ from ..db import *
 from ..helper import *
 from ..messages import CustomView
 
+from ..core.bot_events import LvlUpEvent, WelcomeEvent
+
 __all__ = ['Xp']
 
 
@@ -113,6 +115,14 @@ class Xp(UsefullCog):
       name='📊 `no_life`',
       value='Alias to top 3 of `leaderboard`.',
       inline=False,
+    ).add_field(
+      name='🔼 `simulate-lvl-up`',
+      value='Simulate a level up 🔼 of a user in the server 👤.',
+      inline=False,
+    ).add_field(# simulate welcome
+      name='👋 `simulate-welcome`',
+      value='Simulate a welcome event 👋 of a user in the server 👤.',
+      inline=False,
     )
     await self.dispatcher.reply_with_embed(interaction, embed)
     self.log_interaction(interaction)
@@ -186,6 +196,21 @@ class Xp(UsefullCog):
         f'{TROPHY_EMOJIS[i]} `{user.display_name}` ({user.mention}) {xp} XP ({self.client.xp_to_lvl(xp)})',
         inline=False,
       )
-
     await self.dispatcher.reply_with_embed(interaction, embed)
+    self.log_interaction(interaction)
+
+  @app_commands.command(name='simulate-lvl-up', description='Simulate a level up 🔼 of a user in the server 👤')
+  async def simulate_lvl_up(self, interaction: discord.Interaction, user: discord.Member | None = None):
+    if not user:
+      user = interaction.user
+    content, embed, user_banner = LvlUpEvent(self.__db, user, 69).build_event()
+    await self.dispatcher.reply_with_embed_and_file(interaction, content, embed, user_banner)
+    self.log_interaction(interaction)
+    
+  @app_commands.command(name='simulate-welcome', description='Simulate a welcome event 👋 of a user in the server 👤')
+  async def simulate_welcome(self, interaction: discord.Interaction, user: discord.Member | None = None):
+    if not user:
+      user = interaction.user
+    content, embed, user_banner = WelcomeEvent(self.__db, user).build_event()
+    await self.dispatcher.reply_with_embed_and_file(interaction, content, embed, user_banner)
     self.log_interaction(interaction)

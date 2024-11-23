@@ -60,7 +60,7 @@ def supports_color():
 
 
 def init_logger():
-  DEBUG = os.getenv('DEBUG', 'False').lower() in {'true', '1', 'yes'}
+  DEBUG = os.getenv('INFO', 'False').lower() in {'true', '1', 'yes'}
   # create console handler with a higher log level
   console_handler = logging.StreamHandler()
   log_lvl = logging.DEBUG if DEBUG else logging.INFO

@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "resistance-fr"
 authors = [
   { name = "ThomasByr", email = "tbouyer2000@gmail.com" },
-  { name = "YanisDlmr", email = "" },
+  { name = "YanisDlmr", email = "yanisdeladraw@gmail.com" },
 ]
 description = "Resistance FR - Discord Bot"
 readme = "README.md"

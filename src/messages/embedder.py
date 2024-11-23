@@ -183,3 +183,27 @@ class Embedder:
     if prev_choice is not None:
       embed.description += f'Your previous vote for {prev_emoji} `{prev_choice}` has been removed.'
     return embed
+
+  def build_level_up_embed(
+    self,
+  ) -> discord.Embed:
+    embed = self.build_embed(
+      colour=discord.Colour.from_str('#e74d3c'),
+    )
+    embed.set_image(url="attachment://banane.png")
+    return embed
+  
+  def build_welcome_embed(
+    self,
+    title: str = None,
+    description: str = None,
+    footer: str = None,
+    footer_icon: str = None,
+  ) -> discord.Embed:
+    embed = self.build_embed(
+      title=title,
+      description=description,
+      colour=discord.Colour.from_str('#e74d3c'),
+    )
+    embed.set_image(url="attachment://banane.png")
+    return embed

@@ -54,6 +54,36 @@ class MessageSender:
     ```
     """
     return self.__send_embed(interaction, embed)
+  
+  def reply_with_multiple_embeds(
+    self,
+    interaction: discord.Interaction,
+    embeds: list[discord.Embed],
+    content: str = None,
+  ) -> Coroutine[Any, Any, None]:
+    """
+    reply the sender with multiple embeds
+
+    ## Parameters
+    ```py
+    >>> interaction : discord.Interaction
+    ```
+    original interaction
+    ```py
+    >>> embeds : list[discord.Embed]
+    ```
+    embeds to send
+    ```py
+    >>> content : str, (optional)
+    ```
+    content to send before the embeds
+
+    ## Returns
+    ```py
+    Coroutine[Any, Any, None] : the coroutine that sends the embed
+    ```
+    """
+    return interaction.response.send_message(embeds=embeds, content=content)
 
   def edit_reply_with_embed(
     self,
@@ -118,6 +148,41 @@ class MessageSender:
       except TypeError:
         embed.description = r
     return self.__send_embed(interaction, embed, ephemeral=True, delete_after=s if not failed else None)
+  
+  def reply_with_embed_and_file(
+    self,
+    interaction: discord.Interaction,
+    content: str,
+    embed: discord.Embed,
+    file: discord.File,
+  ) -> Coroutine[str, Any, Any]:
+    """
+    reply the sender with an embed and a file
+
+    ## Parameters
+    ```py
+    >>> interaction : discord.Interaction
+    ```
+    original interaction
+    ```py
+    >>> embed : discord.Embed
+    ```
+    embed to send
+    ```py
+    >>> file : discord.File
+    ```
+    file to send
+    ```py
+    >>> content : str, (optional)
+    ```
+    content to send before the embed
+
+    ## Returns
+    ```py
+    Coroutine[Any, Any, None] : the coroutine that sends the embed
+    ```
+    """
+    return interaction.response.send_message(content=content, embed=embed, file=file)
 
   def send_status_embed(
     self,
@@ -259,3 +324,17 @@ class MessageSender:
                          embed: discord.Embed,
                          content: str = None) -> Coroutine[Any, Any, None]:
     return channel.send(content=content or '', embed=embed)
+
+  def send_lvl_up_event(self,
+                        channel: discord.TextChannel,
+                        content: str,
+                        embed: discord.Embed,
+                        file: discord.File) -> Coroutine[Any, Any, None]:
+    return channel.send(content=content, embed=embed, file=file)
+  
+  def send_welcome_event(self,
+                         channel: discord.TextChannel,
+                         content: str,
+                         embed: discord.Embed,
+                         file: discord.File) -> Coroutine[Any, Any, None]:
+    return channel.send(content=content, embed=embed, file=file)

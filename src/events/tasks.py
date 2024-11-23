@@ -3,6 +3,7 @@ import time
 from typing import Any
 
 import logging
+import discord
 from discord.ext import commands, tasks
 
 from ..db import *
@@ -54,22 +55,37 @@ class TaskManager:
     Run the tasks
     """
     for event in self.__db.get_events():
+      # self.log.info(event)
       if self.__valid(event):
         self.__reload_config()
         await self.__send(event)
+        
+        if self.__everyday(event):
+          self.__db.deactivate_task(event['event_name'])
+          self.log.info('Deactivated event \'%s\'', event['event_name'])
 
   def __valid(self, event: dict[str, Any]) -> bool:
     """
     Check if the event is valid
     """
     # comment the last part to enable the task
-    return self.__valid_state(event) and self.__valid_time(event) and False
+    return self.__valid_state(event) and self.__valid_time(event) # and False
 
   def __valid_state(self, event: dict[str, Any]) -> bool:
     """
     Check if the event is enabled
     """
     return event['state']
+  
+  def __everyday(self, event: dict[str, Any]) -> bool:
+    """
+    Check if the event is everyday
+    """
+    schedule = event['schedule']
+    for s in schedule:
+      if s['day'] == 69:
+        return True
+    return False
 
   def __valid_time(self, event: dict[str, Any]) -> bool:
     """
@@ -92,15 +108,18 @@ class TaskManager:
     """
     Send the event
     """
-    tag = event['tag']
-    channel_id = self.__config['tag_id'][tag]['channel_id']
+    event_name = event['event_name']
+    channel_name = event['channel_name']
+    role_name = event['role_name']
+    # channel_id = self.__config['channel_id'][channel_name]
+    channel_id = 1000506839319969942 # todo : remove this line a uncomment the previous one
     channel = self.client.get_channel(channel_id)
     embed = self.__build_embed(event)
-    content = f'<@&{self.__config["tag_id"][tag]["role_id"]}> {event["content"]}'
+    content = f'<@&{self.__config["role_id"][role_name]}> {event["content"]}'
     await self.dispatcher.send_channel_event(channel, embed, content)
-    self.log.info('Dispatched event \'%s\' to channel %s', tag, channel_id)
+    self.log.info('Dispatched event \'%s\' to channel %s', event_name, channel_id)
 
-  def __build_embed(self, event: dict[str, Any]) -> None:
+  def __build_embed(self, event: dict[str, Any]) -> discord.Embed:
     """
     Build the embed
     """
